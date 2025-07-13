@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #007bff; /* Blue theme for customer */
+      color: white;
+      flex-shrink: 0;
+      border-right: 1px solid #0056b3;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    .sidebar h4 {
+        color: #fff;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #4a90e2;
+        margin-bottom: 15px;
+    }
+    .sidebar .nav-link {
+      color: white;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        font-size: 1.1em;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: #4a90e2;
+      color: #e0f2f7;
+    }
+    .sidebar .nav-link .cart-badge {
+        background-color: #dc3545; /* Red for cart count */
+        color: white;
+        border-radius: 50%;
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        margin-left: auto;
+        line-height: 1;
+    }
+    .topbar {
+      background-color: #f8f9fa;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e9ecef;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    .main-content-area {
+      flex: 1;
+      padding: 20px;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .card {
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .data-section {
+        display: none;
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        min-height: 500px;
+    }
+    .data-section.active {
+        display: block;
+    }
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    .table thead {
+        background-color: #f1f3f5;
+    }
+    .table th {
+        vertical-align: middle;
+    }
+    .badge {
+        font-size: 0.85em;
+        padding: 0.5em 0.7em;
+        border-radius: 0.5rem;
+    }
+    .btn-action {
+        padding: 5px 10px;
+        font-size: 0.85em;
+        margin-right: 5px;
+        border-radius: 5px;
+    }
+    /* Custom Modal styles */
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        background-color: #007bff; /* Blue header */
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom: none;
+    }
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    .modal-footer {
+        border-top: none;
+    }
+    .form-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    /* Food Item Cards */
+    .food-item-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.2s ease-in-out;
+    }
+    .food-item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    .food-item-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .food-item-card .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .food-item-card .item-price {
+        font-size: 1.25em;
+        font-weight: bold;
+        color: #007bff;
+    }
+    .food-item-card .item-discount {
+        text-decoration: line-through;
+        color: #6c757d;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+    .food-item-card .rating-stars {
+        color: #ffc107; /* Yellow stars */
+    }
+
+    /* Restaurant Cards */
+    .restaurant-card {
+        display: flex;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease-in-out;
+    }
+    .restaurant-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .restaurant-card img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .restaurant-card .card-body {
+        padding: 15px;
+        flex-grow: 1;
+    }
+    .restaurant-card h5 {
+        font-size: 1.2em;
+        margin-bottom: 5px;
+    }
+    .restaurant-card p {
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    /* Cart Item Cards */
+    .cart-item-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        background-color: #fefefe;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .cart-item-card img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+    .cart-item-info {
+        flex-grow: 1;
+        margin-right: 20px;
+    }
+    .cart-item-info h5 {
+        margin-bottom: 5px;
+        font-size: 1.2em;
+        color: #333;
+    }
+    .cart-item-info p {
+        margin-bottom: 3px;
+        font-size: 0.95em;
+        color: #666;
+    }
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .cart-item-actions .quantity-input {
+        width: 60px;
+        text-align: center;
+        margin: 0 8px;
+        border-radius: 5px;
+    }
+    .cart-item-actions .btn {
+        padding: 0.4em 0.8em;
+        font-size: 0.9em;
+        border-radius: 5px;
+    }
+
+    /* Order Item Lists within tables */
+    .order-item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0.9em;
+        color: #555;
+    }
+    .order-item-list li {
+        margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column p-3">
+    <h4 class="text-center mb-4">Customer Panel</h4>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link active" href="#" data-section="dashboard-overview"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="all-food-items"><i class="fas fa-pizza-slice"></i> All Food Items</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="restaurants"><i class="fas fa-utensils"></i> Restaurants</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="my-orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="my-cart"><i class="fas fa-shopping-cart"></i> My Cart <span class="cart-badge" id="cartItemCount">0</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="feedback-to-admin"><i class="fas fa-comment-dots"></i> Feedback to Admin</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="profile-management"><i class="fas fa-user-circle"></i> Profile</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main flex-grow-1 d-flex flex-column">
+    <!-- Topbar -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+      <h5 id="dashboardTitle">Customer Dashboard</h5>
+      <div class="d-flex align-items-center">
+        <!-- Search Bar -->
+        <div class="input-group me-3" style="width: 250px;">
+          <input type="text" class="form-control rounded-pill" placeholder="Search..." id="mainSearchInput">
+          <button class="btn btn-outline-secondary rounded-pill ms-2" type="button" id="mainSearchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <!-- User Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle rounded-pill" type="button" id="customerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <span id="customerNameDisplay">Loading...</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="customerDropdown">
+            <li><a class="dropdown-item" href="#" data-section="profile-management">Profile Detail to Edit</a></li>
+            <li><a class="dropdown-item" href="#" data-section="my-cart"><i class="fas fa-shopping-cart me-2"></i>My Cart <span class="badge bg-danger ms-2" id="cartItemCountDropdown">0</span></a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Area -->
+    <div class="main-content-area flex-grow-1">
+
+      <!-- Dashboard Overview Section (Initial view) -->
+      <div id="dashboard-overview" class="data-section active">
+        <h2 class="mb-4 text-center">Dashboard Overview</h2>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card text-white bg-primary">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shopping-cart"></i> Items in Cart</h5>
+                <p class="card-text fs-3" id="itemsInCartCount">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-warning">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-hourglass-start"></i> Pending Orders</h5>
+                <p class="card-text fs-3" id="pendingOrdersCount">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-success">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-check-circle"></i> Delivered Orders</h5>
+                <p class="card-text fs-3" id="deliveredOrdersCount">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-info">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-utensils"></i> Restaurants Visited</h5>
+                <p class="card-text fs-3" id="restaurantsVisitedCount">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Food Items Section -->
+      <div id="all-food-items" class="data-section">
+        <h2 class="mb-4 text-center">All Food Items</h2>
+        <div class="mb-4 form-section">
+            <h4 class="mb-3">Filter by Category</h4>
+            <div id="categoryButtons" class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary rounded-pill active" data-category="all">All</button>
+                <!-- Categories will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <h3 class="mb-3">Popular Restaurants</h3>
+        <div id="popularRestaurantsList" class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+            <div class="col"><p class="text-center text-muted">Loading popular restaurants...</p></div>
+        </div>
+
+        <h3 class="mb-3">Browse All Food Items</h3>
+        <div id="foodItemsList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col"><p class="text-center text-muted">Loading food items...</p></div>
+        </div>
+        <p id="foodItemsLoadingError" class="text-danger text-center" style="display:none;">Failed to load food items.</p>
+      </div>
+
+      <!-- Restaurants Section -->
+      <div id="restaurants" class="data-section">
+        <h2 class="mb-4 text-center">All Restaurants</h2>
+        <div id="locationFilterContainer" class="mb-4 form-section">
+            <label for="locationFilterInput" class="form-label">Filter by Location (e.g., City)</label>
+            <div class="input-group">
+                <input type="text" class="form-control rounded-pill" id="locationFilterInput" placeholder="Enter your city or area">
+                <button class="btn btn-primary rounded-pill ms-2" id="applyLocationFilterBtn">Apply Filter</button>
+                <button class="btn btn-outline-secondary rounded-pill ms-2" id="clearLocationFilterBtn">Clear</button>
+            </div>
+            <small class="form-text text-muted mt-2">Restaurants matching this location will be displayed. Your saved profile address will pre-fill this field.</small>
+        </div>
+        <div id="restaurantsList" class="row row-cols-1 g-3">
+            <div class="col"><p class="text-center text-muted">Loading restaurants...</p></div>
+        </div>
+        <p id="restaurantsLoadingError" class="text-danger text-center" style="display:none;">Failed to load restaurants.</p>
+      </div>
+
+      <!-- My Orders Section -->
+      <div id="my-orders" class="data-section">
+        <h2 class="mb-4 text-center">My Orders</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Restaurant</th>
+                <th>Items</th>
+                <th>Total Price</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th>Payment Method</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="myOrdersTableBody">
+              <tr><td colspan="8" class="text-center">Loading your orders...</td></tr>
+            </tbody>
+          </table>
+          <p id="myOrdersLoadingError" class="text-danger text-center" style="display:none;">Failed to load your orders.</p>
+        </div>
+      </div>
+
+      <!-- My Cart Section -->
+      <div id="my-cart" class="data-section">
+        <h2 class="mb-4 text-center">My Cart</h2>
+        <div id="cartItemsList">
+            <p class="text-center text-muted" id="cartEmptyMessage">Your cart is empty.</p>
+        </div>
+        <div class="d-flex justify-content-end align-items-center mt-4 flex-wrap">
+            <div class="mb-3 me-3 flex-grow-1 text-end">
+                <label for="paymentMethodSelect" class="form-label me-2">Payment Method:</label>
+                <select class="form-select d-inline-block w-auto rounded-pill" id="paymentMethodSelect">
+                    <option value="COD">Cash on Delivery (COD)</option>
+                    <option value="Card">Card Payment</option>
+                </select>
+            </div>
+            <h4 class="me-3">Total: $<span id="cartTotal">0.00</span></h4>
+            <button class="btn btn-success rounded-pill" id="placeOrderBtn" disabled>Place Order</button>
+        </div>
+        <div id="cartMessage" class="mt-3"></div>
+      </div>
+
+      <!-- Feedback to Admin Section -->
+      <div id="feedback-to-admin" class="data-section">
+        <h2 class="mb-4 text-center">Feedback to Admin</h2>
+        <div class="form-section mb-4">
+            <h4>Send Feedback</h4>
+            <form id="sendFeedbackToAdminForm">
+                <div class="mb-3">
+                    <label for="feedbackMessage" class="form-label">Your Message</label>
+                    <textarea class="form-control rounded-pill" id="feedbackMessage" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill">Send Feedback</button>
+                <div id="sendFeedbackToAdminMessage" class="mt-3"></div>
+            </form>
+        </div>
+
+        <h4>Your Previous Feedback</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Feedback ID</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="customerFeedbackToAdminTableBody">
+                    <tr><td colspan="4" class="text-center">Loading previous feedback...</td></tr>
+                </tbody>
+            </table>
+            <p id="customerFeedbackToAdminLoadingError" class="text-danger text-center" style="display:none;">Failed to load previous feedback.</p>
+        </div>
+      </div>
+
+      <!-- Profile Management Section -->
+      <div id="profile-management" class="data-section">
+        <h2 class="mb-4 text-center">Your Profile</h2>
+        <div class="form-section">
+            <form id="customerProfileForm">
+                <div class="mb-3">
+                    <label for="profileName" class="form-label">Name</label>
+                    <input type="text" class="form-control rounded-pill" id="profileName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="profileEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control rounded-pill" id="profileEmail" required disabled>
+                    <small class="form-text text-muted">Email cannot be changed.</small>
+                </div>
+                <div class="mb-3">
+                    <label for="profileAddress" class="form-label">Address</label>
+                    <input type="text" class="form-control rounded-pill" id="profileAddress">
+                    <small class="form-text text-muted">Used for displaying nearby restaurants and order delivery.</small>
+                </div>
+                <div class="mb-3">
+                    <label for="profilePhone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control rounded-pill" id="profilePhone">
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill">Save Changes</button>
+                <div id="customerProfileMessage" class="mt-3"></div>
+            </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmationMessage">
+          Are you sure you want to perform this action?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary rounded-pill" id="confirmActionButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rating Modal -->
+  <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ratingModalLabel">Rate Your Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="ratingForm">
+            <input type="hidden" id="ratingOrderId">
+            <input type="hidden" id="ratingRestaurantId">
+            <div class="mb-3 text-center">
+              <label for="ratingStars" class="form-label d-block mb-2">Rating:</label>
+              <div id="ratingStars" class="rating-stars fs-3">
+                <i class="far fa-star" data-rating="1"></i>
+                <i class="far fa-star" data-rating="2"></i>
+                <i class="far fa-star" data-rating="3"></i>
+                <i class="far fa-star" data-rating="4"></i>
+                <i class="far fa-star" data-rating="5"></i>
+              </div>
+              <input type="hidden" id="selectedRating" required>
+            </div>
+            <div class="mb-3">
+              <label for="ratingMessage" class="form-label">Comments (Optional):</label>
+              <textarea class="form-control rounded-pill" id="ratingMessage" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary rounded-pill w-100">Submit Rating</button>
+            <div id="ratingMessageDiv" class="mt-3"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      const userType = localStorage.getItem('userType');
+      let userName = localStorage.getItem('userName');
+      const userId = localStorage.getItem('userId');
+  
+      const customerNameDisplay = document.getElementById('customerNameDisplay');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const dashboardTitle = document.getElementById('dashboardTitle');
+      const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+      const dataSections = document.querySelectorAll('.data-section');
+      
+      const cartItemCountSpan = document.getElementById('cartItemCount');
+      const cartItemCountDropdownSpan = document.getElementById('cartItemCountDropdown');
+  
+      // Dashboard Overview elements
+      const itemsInCartCount = document.getElementById('itemsInCartCount');
+      const pendingOrdersCount = document.getElementById('pendingOrdersCount');
+      const deliveredOrdersCount = document.getElementById('deliveredOrdersCount');
+      const restaurantsVisitedCount = document.getElementById('restaurantsVisitedCount');
+  
+      // Food Items & Categories
+      const categoryButtonsDiv = document.getElementById('categoryButtons');
+      const popularRestaurantsList = document.getElementById('popularRestaurantsList');
+      const foodItemsList = document.getElementById('foodItemsList');
+      const foodItemsLoadingError = document.getElementById('foodItemsLoadingError');
+      let currentCategoryFilter = 'all';
+      let currentUserAddress = ''; // Will be populated from user profile
+  
+      // Restaurants
+      const restaurantsList = document.getElementById('restaurantsList');
+      const restaurantsLoadingError = document.getElementById('restaurantsLoadingError');
+      const locationFilterInput = document.getElementById('locationFilterInput');
+      const applyLocationFilterBtn = document.getElementById('applyLocationFilterBtn');
+      const clearLocationFilterBtn = document.getElementById('clearLocationFilterBtn');
+  
+      // My Orders
+      const myOrdersTableBody = document.getElementById('myOrdersTableBody');
+      const myOrdersLoadingError = document.getElementById('myOrdersLoadingError');
+  
+      // My Cart
+      const cartItemsListDiv = document.getElementById('cartItemsList');
+      const cartEmptyMessage = document.getElementById('cartEmptyMessage');
+      const cartTotalSpan = document.getElementById('cartTotal');
+      const placeOrderBtn = document.getElementById('placeOrderBtn');
+      const cartMessageDiv = document.getElementById('cartMessage');
+      const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+      let customerCart = [];
+  
+      // Feedback to Admin
+      const sendFeedbackToAdminForm = document.getElementById('sendFeedbackToAdminForm');
+      const sendFeedbackToAdminMessage = document.getElementById('sendFeedbackToAdminMessage');
+      const customerFeedbackToAdminTableBody = document.getElementById('customerFeedbackToAdminTableBody');
+      const customerFeedbackToAdminLoadingError = document.getElementById('customerFeedbackToAdminLoadingError');
+  
+      // Profile Management
+      const customerProfileForm = document.getElementById('customerProfileForm');
+      const profileNameInput = document.getElementById('profileName');
+      const profileEmailInput = document.getElementById('profileEmail');
+      const profileAddressInput = document.getElementById('profileAddress');
+      const profilePhoneInput = document.getElementById('profilePhone');
+      const customerProfileMessage = document.getElementById('customerProfileMessage');
+      
+      // Modals and Confirmation
+      const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+      const confirmActionButton = document.getElementById('confirmActionButton');
+      const confirmationMessage = document.getElementById('confirmationMessage');
+      let currentAction = null; // To store the function to execute on confirmation
+  
+      // Rating Modal Elements
+      const ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
+      const ratingForm = document.getElementById('ratingForm');
+      const ratingOrderIdInput = document.getElementById('ratingOrderId');
+      const ratingRestaurantIdInput = document.getElementById('ratingRestaurantId');
+      const ratingStarsContainer = document.getElementById('ratingStars');
+      const selectedRatingInput = document.getElementById('selectedRating');
+      const ratingMessageInput = document.getElementById('ratingMessage');
+      const ratingMessageDiv = document.getElementById('ratingMessageDiv');
+      let selectedStars = 0; // To store the selected rating value
+  
+  
+      // --- Initial Checks and Setup ---
+      if (!token || userType !== 'customer') {
+        alert('Unauthorized access. Please log in as a customer.');
+        window.location.href = '/login.html';
+        return;
+      }
+      if (userName) {
+          customerNameDisplay.innerText = userName;
+      } else {
+          customerNameDisplay.innerText = 'Customer';
+      }
+  
+      // --- Helper Functions ---
+      function displayMessage(message, type = 'info', element = cartMessageDiv) {
+          element.innerHTML = `<div class="alert alert-${type} rounded-pill">${message}</div>`;
+          setTimeout(() => { element.innerHTML = ''; }, 5000); // Clear message after 5 seconds
+      }
+  
+      async function makeAuthenticatedRequest(url, method = 'GET', body = null) {
+          try {
+              const options = {
+                  method: method,
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                  }
+              };
+              if (body) {
+                  options.body = JSON.stringify(body);
+              }
+              const res = await fetch(url, options);
+              if (res.status === 401 || res.status === 403) {
+                  alert('Session expired or unauthorized. Please login again.');
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('userType');
+                  localStorage.removeItem('userName');
+                  localStorage.removeItem('userId');
+                  localStorage.removeItem('userEmail');
+                  window.location.href = '/login.html';
+                  return null; // Return null to indicate failure and redirect
+              }
+              if (!res.ok) {
+                  const errorData = await res.json();
+                  throw new Error(errorData.message || res.statusText);
+              }
+              if (res.status === 204 || res.headers.get('content-length') === '0') {
+                  return {}; // Return an empty object for no content responses
+              }
+              return await res.json();
+          } catch (error) {
+              console.error(`Error in ${method} ${url}:`, error);
+              if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                  displayMessage('Network error: Could not connect to the server. Please check your internet connection.', 'danger');
+              } else {
+                displayMessage(`Error: ${error.message}`, 'danger'); // Display specific error message
+              }
+              throw error; // Re-throw to be caught by specific fetch functions
+          }
+      }
+  
+      function showSection(sectionId) {
+          dataSections.forEach(section => section.classList.remove('active'));
+          document.getElementById(sectionId).classList.add('active');
+          sidebarLinks.forEach(link => link.classList.remove('active'));
+          document.querySelector(`.sidebar .nav-link[data-section="${sectionId}"]`).classList.add('active');
+          dashboardTitle.innerText = document.querySelector(`.sidebar .nav-link[data-section="${sectionId}"]`).innerText;
+      }
+  
+      sidebarLinks.forEach(link => {
+          link.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const sectionId = e.currentTarget.dataset.section;
+              showSection(sectionId);
+              switch (sectionId) {
+                  case 'dashboard-overview':
+                      fetchDashboardCounts();
+                      break;
+                  case 'all-food-items':
+                      fetchCategories();
+                      fetchAllFoodItems(null, null, currentUserAddress);
+                      fetchPopularRestaurants();
+                      break;
+                  case 'restaurants':
+                      locationFilterInput.value = currentUserAddress; // Pre-fill with user's address
+                      fetchAllRestaurants(currentUserAddress);
+                      break;
+                  case 'my-orders':
+                      fetchCustomerOrders();
+                      break;
+                  case 'my-cart':
+                      fetchCartItems();
+                      break;
+                  case 'feedback-to-admin':
+                      fetchCustomerFeedbackToAdmin();
+                      break;
+                  case 'profile-management':
+                      fetchCustomerProfile();
+                      break;
+              }
+          });
+      });
+  
+      function updateCartCount(count) {
+          cartItemCountSpan.innerText = count;
+          cartItemCountDropdownSpan.innerText = count;
+          if (count > 0) {
+              placeOrderBtn.disabled = false;
+          } else {
+              placeOrderBtn.disabled = true;
+          }
+      }
+  
+      async function fetchDashboardCounts() {
+        try {
+          const data = await makeAuthenticatedRequest('/api/customer/dashboard-counts');
+          if (!data) return; // Authentication redirect happened
+          itemsInCartCount.innerText = data.itemsInCart;
+          pendingOrdersCount.innerText = data.pendingOrders;
+          deliveredOrdersCount.innerText = data.deliveredOrders;
+          restaurantsVisitedCount.innerText = data.restaurantsVisited;
+        } catch (err) {
+          console.error("Error fetching customer dashboard data:", err);
+          itemsInCartCount.innerText = 'N/A';
+          pendingOrdersCount.innerText = 'N/A';
+          deliveredOrdersCount.innerText = 'N/A';
+          restaurantsVisitedCount.innerText = 'N/A';
+          displayMessage('Failed to load dashboard data. Please check your internet connection or server status.', 'danger');
+        }
+      }
+  
+      async function fetchCategories() {
+          try {
+              const categories = await makeAuthenticatedRequest('/api/customer/categories');
+              if (!categories) return;
+              categoryButtonsDiv.innerHTML = `<button class="btn btn-outline-primary rounded-pill ${currentCategoryFilter === 'all' ? 'active' : ''}" data-category="all">All</button>`;
+              categories.forEach(cat => {
+                  const button = document.createElement('button');
+                  button.className = `btn btn-outline-primary rounded-pill ${currentCategoryFilter === cat ? 'active' : ''}`;
+                  button.dataset.category = cat;
+                  button.textContent = cat;
+                  categoryButtonsDiv.appendChild(button);
+              });
+  
+              categoryButtonsDiv.querySelectorAll('.btn').forEach(button => {
+                  button.addEventListener('click', (e) => {
+                      categoryButtonsDiv.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+                      e.target.classList.add('active');
+                      currentCategoryFilter = e.target.dataset.category;
+                      fetchAllFoodItems(currentCategoryFilter === 'all' ? null : currentCategoryFilter, null, currentUserAddress);
+                  });
+              });
+  
+          } catch (error) {
+              console.error('Error fetching categories:', error);
+              displayMessage('Error fetching categories.', 'danger');
+          }
+      }
+  
+      async function fetchAllFoodItems(category = null, searchTerm = null, location = null) {
+        foodItemsList.innerHTML = '<div class="col-12 text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading food items...</div>';
+        foodItemsLoadingError.style.display = 'none';
+        try {
+            let url = '/api/customer/food-items';
+            const params = new URLSearchParams();
+            if (category) params.append('category', category);
+            if (searchTerm) params.append('search', searchTerm);
+            if (location) params.append('location', location);
+            if (params.toString()) url += `?${params.toString()}`;
+  
+            const items = await makeAuthenticatedRequest(url);
+            if (!items) return;
+            renderFoodItems(items);
+        } catch (err) {
+            console.error("Error fetching food items:", err);
+            foodItemsLoadingError.style.display = 'block';
+            foodItemsList.innerHTML = '<div class="col-12 text-center text-danger">Failed to load food items.</div>';
+        }
+      }
+  
+      function renderFoodItems(items) {
+        foodItemsList.innerHTML = '';
+        if (items.length === 0) {
+            foodItemsList.innerHTML = '<div class="col-12 text-center text-muted">No food items found matching your criteria.</div>';
+            return;
+        }
+        items.forEach(item => {
+            const originalPrice = item.price;
+            const discountedPrice = item.discount ? (item.price * (1 - item.discount / 100)) : null;
+            const displayPrice = discountedPrice !== null ? discountedPrice.toFixed(2) : originalPrice.toFixed(2);
+  
+            const cardCol = document.createElement('div');
+            cardCol.className = 'col';
+            cardCol.innerHTML = `
+                <div class="card food-item-card">
+                    <img src="${item.image || 'https://placehold.co/400x180/E0E0E0/888888?text=No+Image'}" class="card-img-top" alt="${item.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x180/E0E0E0/888888?text=No+Image';">
+                    <div class="card-body">
+                        <h5 class="card-title">${item.title}</h5>
+                        <p class="card-text text-muted">${item.description ? item.description.substring(0, 100) + (item.description.length > 100 ? '...' : '') : 'No description'}</p>
+                        <p class="mb-1">Restaurant: <strong>${item.restaurant ? item.restaurant.title : 'Unknown'}</strong></p>
+                        <p class="mb-1">Category: <strong>${item.category}</strong></p>
+                        <p class="item-price">
+                            $${displayPrice}
+                            ${discountedPrice !== null ? `<span class="item-discount">$${originalPrice.toFixed(2)}</span>` : ''}
+                            ${item.discount ? `<span class="badge bg-success ms-2">${item.discount}% OFF</span>` : ''}
+                        </p>
+                        <div class="rating-stars mb-2">
+                            ${Array(item.averageRating ? Math.floor(item.averageRating) : 0).fill('<i class="fas fa-star"></i>').join('')}
+                            ${item.averageRating && item.averageRating % 1 !== 0 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                            ${Array(5 - (item.averageRating ? Math.ceil(item.averageRating) : 0)).fill('<i class="far fa-star"></i>').join('')}
+                            ${item.averageRating ? ` (${item.averageRating.toFixed(1)})` : ' (No ratings yet)'}
+                        </div>
+                        <button class="btn btn-primary rounded-pill add-to-cart-btn" 
+                                data-item-id="${item._id}" 
+                                data-item-price="${discountedPrice !== null ? discountedPrice : originalPrice}" 
+                                data-item-title="${item.title}" 
+                                data-restaurant-id="${item.restaurant._id}" 
+                                data-restaurant-title="${item.restaurant.title}"
+                                data-item-image="${item.image || ''}"
+                                data-item-discount="${item.discount || 0}">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+            foodItemsList.appendChild(cardCol);
+        });
+  
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const itemId = e.currentTarget.dataset.itemId;
+                const itemTitle = e.currentTarget.dataset.itemTitle;
+                const itemPrice = parseFloat(e.currentTarget.dataset.itemPrice);
+                const restaurantId = e.currentTarget.dataset.restaurantId;
+                const restaurantTitle = e.currentTarget.dataset.restaurantTitle;
+                const itemImage = e.currentTarget.dataset.itemImage;
+                const itemDiscount = parseInt(e.currentTarget.dataset.itemDiscount);
+  
+                console.log('Adding to cart payload:', {
+                    foodItemId: itemId,
+                    quantity: 1,
+                    priceAtTimeOfAddition: itemPrice,
+                    restaurantId: restaurantId
+                });
+  
+                try {
+                    const result = await makeAuthenticatedRequest('/api/customer/cart/add', 'POST', {
+                        foodItemId: itemId,
+                        quantity: 1,
+                        priceAtTimeOfAddition: itemPrice,
+                        restaurantId: restaurantId
+                    });
+                    if (result) {
+                        displayMessage(`${itemTitle} added to cart!`, 'success');
+                        updateCartCount(result.cartItemCount);
+                        fetchCartItems(); // Refresh cart display
+                    }
+                } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    displayMessage(`Failed to add item to cart: ${error.message}`, 'danger');
+                }
+            });
+        });
+      }
+  
+      const mainSearchInput = document.getElementById('mainSearchInput');
+      const mainSearchBtn = document.getElementById('mainSearchBtn');
+  
+      mainSearchBtn.addEventListener('click', () => {
+          const searchTerm = mainSearchInput.value.trim();
+          if (searchTerm) {
+              // Deactivate all category buttons and activate 'All' if searching
+              categoryButtonsDiv.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+              categoryButtonsDiv.querySelector('[data-category="all"]').classList.add('active');
+              currentCategoryFilter = 'all'; // Reset filter
+              fetchAllFoodItems(null, searchTerm, currentUserAddress);
+          } else {
+              // If search term is empty, revert to current category filter
+              fetchAllFoodItems(currentCategoryFilter === 'all' ? null : currentCategoryFilter, null, currentUserAddress);
+          }
+      });
+  
+      mainSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          mainSearchBtn.click();
+        }
+      });
+  
+      async function fetchPopularRestaurants() {
+        popularRestaurantsList.innerHTML = '<div class="col-12 text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading popular restaurants...</div>';
+        try {
+            const data = await makeAuthenticatedRequest('/api/customer/popular-restaurants');
+            if (!data) return;
+            renderPopularRestaurants(data.promotedRestaurants);
+        } catch (err) {
+            console.error("Error fetching popular restaurants:", err);
+            popularRestaurantsList.innerHTML = '<div class="col-12 text-center text-danger">Failed to load popular restaurants.</div>';
+        }
+      }
+  
+      function renderPopularRestaurants(restaurants) {
+        popularRestaurantsList.innerHTML = '';
+        if (restaurants.length === 0) {
+            popularRestaurantsList.innerHTML = '<div class="col-12 text-center text-muted">No popular restaurants at the moment.</div>';
+            return;
+        }
+        restaurants.forEach(restaurant => {
+            const cardCol = document.createElement('div');
+            cardCol.className = 'col';
+            cardCol.innerHTML = `
+                <div class="card restaurant-card">
+                    <img src="${restaurant.image || 'https://placehold.co/150x150/E0E0E0/888888?text=No+Image'}" class="card-img-top" alt="${restaurant.title}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/E0E0E0/888888?text=No+Image';">
+                    <div class="card-body">
+                        <h5 class="card-title">${restaurant.title}</h5>
+                        <p class="card-text">${restaurant.description ? restaurant.description.substring(0, 100) + (restaurant.description.length > 100 ? '...' : '') : 'No description provided.'}</p>
+                        <p class="card-text text-muted"><i class="fas fa-map-marker-alt"></i> ${restaurant.address}</p>
+                        <div class="rating-stars mb-2">
+                            ${Array(restaurant.averageRating ? Math.floor(restaurant.averageRating) : 0).fill('<i class="fas fa-star"></i>').join('')}
+                            ${restaurant.averageRating && restaurant.averageRating % 1 !== 0 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                            ${Array(5 - (restaurant.averageRating ? Math.ceil(restaurant.averageRating) : 0)).fill('<i class="far fa-star"></i>').join('')}
+                            ${restaurant.averageRating ? ` (${restaurant.averageRating.toFixed(1)})` : ' (No ratings yet)'}
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill view-menu-btn" data-restaurant-id="${restaurant._id}">View Menu</button>
+                    </div>
+                </div>
+            `;
+            popularRestaurantsList.appendChild(cardCol);
+        });
+  
+        document.querySelectorAll('.view-menu-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const restaurantId = e.currentTarget.dataset.restaurantId;
+                displayMessage(`Viewing menu for restaurant ID: ${restaurantId}. Feature to filter by restaurant will be implemented soon!`, 'info');
+                // Optional: You might want to filter food items by this restaurant ID
+                showSection('all-food-items'); 
+            });
+        });
+      }
+  
+      async function fetchAllRestaurants(location = null) {
+        restaurantsList.innerHTML = '<div class="col-12 text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading restaurants...</div>';
+        restaurantsLoadingError.style.display = 'none';
+        try {
+            let url = '/api/customer/restaurants';
+            if (location) {
+                url += `?location=${encodeURIComponent(location)}`;
+            }
+            const restaurants = await makeAuthenticatedRequest(url);
+            if (!restaurants) return;
+            renderAllRestaurants(restaurants);
+        } catch (err) {
+            console.error("Error fetching all restaurants:", err);
+            restaurantsLoadingError.style.display = 'block';
+            restaurantsList.innerHTML = '<div class="col-12 text-center text-danger">Failed to load restaurants.</div>';
+        }
+      }
+  
+      function renderAllRestaurants(restaurants) {
+        restaurantsList.innerHTML = '';
+        if (restaurants.length === 0) {
+            restaurantsList.innerHTML = '<div class="col-12 text-center text-muted">No restaurants found. Please try a different location or check back later.</div>';
+            return;
+        }
+        restaurants.forEach(restaurant => {
+            const cardCol = document.createElement('div');
+            cardCol.className = 'col';
+            cardCol.innerHTML = `
+                <div class="card restaurant-card">
+                    <img src="${restaurant.image || 'https://placehold.co/150x150/E0E0E0/888888?text=No+Image'}" class="card-img-top" alt="${restaurant.title}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/E0E0E0/888888?text=No+Image';">
+                    <div class="card-body">
+                        <h5 class="card-title">${restaurant.title}</h5>
+                        <p class="card-text">${restaurant.description ? restaurant.description.substring(0, 100) + (restaurant.description.length > 100 ? '...' : '') : 'No description provided.'}</p>
+                        <p class="card-text text-muted"><i class="fas fa-map-marker-alt"></i> ${restaurant.address}</p>
+                        <div class="rating-stars mb-2">
+                            ${Array(restaurant.averageRating ? Math.floor(restaurant.averageRating) : 0).fill('<i class="fas fa-star"></i>').join('')}
+                            ${restaurant.averageRating && restaurant.averageRating % 1 !== 0 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                            ${Array(5 - (restaurant.averageRating ? Math.ceil(restaurant.averageRating) : 0)).fill('<i class="far fa-star"></i>').join('')}
+                            ${restaurant.averageRating ? ` (${restaurant.averageRating.toFixed(1)})` : ' (No ratings yet)'}
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill view-menu-btn" data-restaurant-id="${restaurant._id}">View Menu</button>
+                    </div>
+                </div>
+            `;
+            restaurantsList.appendChild(cardCol);
+        });
+  
+        document.querySelectorAll('.view-menu-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const restaurantId = e.currentTarget.dataset.restaurantId;
+                displayMessage(`Viewing menu for restaurant ID: ${restaurantId}. Feature to filter by restaurant will be implemented soon!`, 'info');
+                showSection('all-food-items'); // Navigate to all food items
+                // You might want to pass restaurantId to filter food items
+            });
+        });
+      }
+  
+      applyLocationFilterBtn.addEventListener('click', () => {
+          const location = locationFilterInput.value.trim();
+          fetchAllRestaurants(location);
+          fetchAllFoodItems(currentCategoryFilter === 'all' ? null : currentCategoryFilter, null, location); // Also filter food items by location
+      });
+  
+      clearLocationFilterBtn.addEventListener('click', () => {
+          locationFilterInput.value = '';
+          fetchAllRestaurants();
+          fetchAllFoodItems(currentCategoryFilter === 'all' ? null : currentCategoryFilter, null, null); // Clear food item location filter too
+      });
+  
+      async function fetchCustomerOrders() {
+        myOrdersTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading your orders...</td></tr>';
+        myOrdersLoadingError.style.display = 'none';
+        try {
+            const orders = await makeAuthenticatedRequest('/api/customer/orders');
+            if (!orders) return;
+            renderCustomerOrdersTable(orders);
+        } catch (err) {
+            console.error("Error fetching customer orders:", err);
+            myOrdersLoadingError.style.display = 'block';
+            myOrdersTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load your orders.</td></tr>';
+        }
+      }
+  
+      function renderCustomerOrdersTable(orders) {
+        myOrdersTableBody.innerHTML = '';
+        if (orders.length === 0) {
+            myOrdersTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">You have no orders yet.</td></tr>';
+            return;
+        }
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+            const restaurantTitle = order.restaurant ? order.restaurant.title : 'Unknown Restaurant';
+            const itemsListHtml = order.items.map(item => {
+                const foodItemTitle = item.foodItem ? item.foodItem.title : 'Unknown Item';
+                return `<li>${foodItemTitle} (${item.quantity}) - $${item.price.toFixed(2)}</li>`;
+            }).join('');
+            const totalPrice = order.totalAmount.toFixed(2);
+            const statusBadge = `<span class="badge ${order.status === 'pending' ? 'bg-secondary' : order.status === 'preparing' ? 'bg-info' : order.status === 'delivered' ? 'bg-success' : 'bg-danger'}">${order.status}</span>`;
+  
+            row.innerHTML = `
+                <td>${order._id.substring(0,8)}...</td>
+                <td>${restaurantTitle}</td>
+                <td><ul class="order-item-list">${itemsListHtml}</ul></td>
+                <td>$${totalPrice}</td>
+                <td>${new Date(order.orderDate).toLocaleString()}</td>
+                <td>${statusBadge}</td>
+                <td>${order.paymentMethod || 'COD'}</td>
+                <td>
+                    ${order.status === 'pending' || order.status === 'preparing' ? `<button class="btn btn-sm btn-danger btn-action cancel-order-btn" data-order-id="${order._id}">Cancel</button>` : ''}
+                    ${order.status === 'delivered' ? `<button class="btn btn-sm btn-info btn-action rate-order-btn" data-order-id="${order._id}" data-restaurant-id="${order.restaurant._id}">Rate</button>` : ''}
+                </td>
+            `;
+            myOrdersTableBody.appendChild(row);
+        });
+  
+        document.querySelectorAll('.cancel-order-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const orderId = e.currentTarget.dataset.orderId;
+                confirmationMessage.innerHTML = `Are you sure you want to **cancel** order ${orderId.substring(0,6)}...? This action cannot be undone.`;
+                currentAction = () => cancelOrder(orderId);
+                confirmationModal.show();
+            });
+        });
+  
+        document.querySelectorAll('.rate-order-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const orderId = e.currentTarget.dataset.orderId;
+                const restaurantId = e.currentTarget.dataset.restaurantId; // Get restaurant ID from button
+                
+                // Set values in the modal's hidden inputs
+                ratingOrderIdInput.value = orderId;
+                ratingRestaurantIdInput.value = restaurantId;
+                console.log('Opening rating modal for Order ID:', orderId, 'Restaurant ID:', restaurantId); // Debugging log
+  
+                // Reset star rating and message
+                selectedStars = 0;
+                updateStarDisplay(0);
+                ratingMessageInput.value = '';
+                ratingMessageDiv.innerHTML = ''; // Clear any previous messages in the rating modal
+  
+                ratingModal.show();
+            });
+        });
+      }
+  
+      async function cancelOrder(orderId) {
+          confirmationModal.hide();
+          try {
+              const result = await makeAuthenticatedRequest(`/api/customer/orders/${orderId}/cancel`, 'PUT');
+              if (result) {
+                  displayMessage(result.message, 'success');
+                  fetchCustomerOrders(); // Refresh orders
+                  fetchDashboardCounts(); // Update dashboard counts
+              }
+          } catch (error) {
+              console.error('Error canceling order:', error);
+              displayMessage('Failed to cancel order: ' + error.message, 'danger');
+          }
+      }
+  
+      // --- Rating Modal Logic ---
+      ratingStarsContainer.addEventListener('click', (e) => {
+          if (e.target.classList.contains('fa-star') || e.target.classList.contains('fa-star-half-alt')) {
+              const rating = parseInt(e.target.dataset.rating);
+              selectedStars = rating;
+              updateStarDisplay(selectedStars);
+              selectedRatingInput.value = selectedStars; // Set the hidden input value
+              console.log('Selected Rating:', selectedStars); // Debugging log
+          }
+      });
+  
+      function updateStarDisplay(rating) {
+          Array.from(ratingStarsContainer.children).forEach(star => {
+              const starRating = parseInt(star.dataset.rating);
+              if (starRating <= rating) {
+                  star.classList.remove('far');
+                  star.classList.add('fas');
+              } else {
+                  star.classList.remove('fas');
+                  star.classList.add('far');
+              }
+          });
+      }
+  
+      ratingForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          ratingMessageDiv.innerHTML = '';
+  
+          const orderId = ratingOrderIdInput.value;
+          const restaurantId = ratingRestaurantIdInput.value; // Get restaurant ID from hidden input
+          const rating = parseInt(selectedRatingInput.value); // Get selected rating from hidden input
+          const message = ratingMessageInput.value.trim();
+  
+          // --- Critical Debugging Logs ---
+          console.log('Submitting Rating Payload:');
+          console.log('  Order ID:', orderId);
+          console.log('  Restaurant ID (from input):', restaurantId); // Log the value from the input field
+          console.log('  Rating:', rating);
+          console.log('  Message:', message);
+          // --- End Debugging Logs ---
+  
+          if (rating === 0 || isNaN(rating) || rating < 1 || rating > 5) {
+              displayMessage('Please select a valid star rating (1-5).', 'danger', ratingMessageDiv);
+              console.error('Rating submission error: Invalid rating value:', rating);
+              return;
+          }
+          if (!restaurantId || restaurantId.trim() === '') {
+              displayMessage('Restaurant ID is missing. Cannot submit rating.', 'danger', ratingMessageDiv);
+              console.error('Rating submission error: restaurantId is null, undefined, or empty.');
+              return;
+          }
+  
+          try {
+              const result = await makeAuthenticatedRequest(`/api/customer/feedback`, 'POST', {
+                  order: orderId,
+                  restaurant: restaurantId, // <-- CHANGED THIS KEY FROM 'restaurantId' to 'restaurant'
+                  rating: rating,
+                  message: message
+              });
+  
+              if (result) {
+                  displayMessage(result.message, 'success', ratingMessageDiv);
+                  setTimeout(() => {
+                      ratingModal.hide();
+                      fetchCustomerOrders(); // Refresh orders to update 'Rate' button state
+                      fetchDashboardCounts(); // Update dashboard counts
+                  }, 1500);
+              }
+          } catch (error) {
+              console.error('Error submitting rating:', error);
+              displayMessage('Failed to submit rating: ' + error.message, 'danger', ratingMessageDiv);
+          }
+      });
+  
+      // --- Cart Management ---
+      async function fetchCartItems() {
+          cartItemsListDiv.innerHTML = '<p class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading cart...</p>';
+          cartEmptyMessage.style.display = 'none';
+          cartTotalSpan.innerText = '0.00';
+          placeOrderBtn.disabled = true;
+  
+          try {
+              const cartData = await makeAuthenticatedRequest('/api/customer/cart');
+              console.log("Raw Fetched Cart Data:", JSON.stringify(cartData, null, 2)); // Debugging log
+              if (!cartData || !cartData.items || cartData.items.length === 0) {
+                  customerCart = [];
+              } else {
+                  customerCart = cartData.items;
+              }
+              console.log("Processed customerCart for rendering:", JSON.stringify(customerCart, null, 2)); // Debugging log
+              renderCartItems();
+              updateCartCount(customerCart.length); // Update main cart badge
+              fetchDashboardCounts(); // Update dashboard "Items in Cart" count
+          } catch (error) {
+              console.error('Error fetching cart items:', error);
+              displayMessage('Failed to load cart. Please try again.', 'danger');
+              customerCart = []; // Clear cart on error
+              renderCartItems(); // Render empty cart
+              updateCartCount(0); // Update cart count to 0
+          }
+      }
+  
+      function renderCartItems() {
+          cartItemsListDiv.innerHTML = '';
+          let overallTotal = 0;
+  
+          if (customerCart.length === 0) {
+              cartEmptyMessage.style.display = 'block';
+              placeOrderBtn.disabled = true;
+              cartTotalSpan.innerText = '0.00';
+              return;
+          } else {
+              cartEmptyMessage.style.display = 'none';
+              placeOrderBtn.disabled = false;
+          }
+  
+          // Group cart items by restaurant
+          const cartByRestaurant = {};
+          customerCart.forEach(item => {
+              // Ensure item.foodItem and item.restaurant are populated before accessing
+              if (!item.foodItem || !item.restaurant || !item.restaurant._id) {
+                  console.error("Cart item missing populated foodItem, restaurant, or restaurant._id, skipping:", item);
+                  displayMessage('Error: Some cart items are incomplete. Please clear your cart and re-add items.', 'danger');
+                  return; // Skip this malformed item
+              }
+              const restaurantId = item.restaurant._id;
+              if (!cartByRestaurant[restaurantId]) {
+                  cartByRestaurant[restaurantId] = {
+                      restaurantId: restaurantId,
+                      restaurantTitle: item.restaurant.title,
+                      items: [],
+                      subtotal: 0
+                  };
+              }
+              cartByRestaurant[restaurantId].items.push(item);
+              cartByRestaurant[restaurantId].subtotal += item.priceAtTimeOfAddition * item.quantity;
+          });
+  
+          for (const restaurantId in cartByRestaurant) {
+              const restaurantGroup = cartByRestaurant[restaurantId];
+              const restaurantDiv = document.createElement('div');
+              restaurantDiv.className = 'card mb-4 p-3';
+              restaurantDiv.innerHTML = `
+                  <h4 class="mb-3">${restaurantGroup.restaurantTitle}</h4>
+                  <div class="restaurant-cart-items"></div>
+                  <div class="text-end mt-2 fs-5">Subtotal for ${restaurantGroup.restaurantTitle}: $${restaurantGroup.subtotal.toFixed(2)}</div>
+              `;
+              const itemsContainer = restaurantDiv.querySelector('.restaurant-cart-items');
+  
+              restaurantGroup.items.forEach(item => {
+                  const itemTotal = (item.priceAtTimeOfAddition * item.quantity);
+                  const cartItemCard = document.createElement('div');
+                  cartItemCard.className = 'cart-item-card';
+                  cartItemCard.innerHTML = `
+                      <img src="${item.foodItem.image || 'https://placehold.co/100x100/E0E0E0/888888?text=No+Image'}" alt="${item.foodItem.title}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/E0E0E0/888888?text=No+Image';">
+                      <div class="cart-item-info">
+                          <h5>${item.foodItem.title}</h5>
+                          <p>Price: $${item.priceAtTimeOfAddition.toFixed(2)}</p>
+                          <p>Restaurant: ${item.restaurant.title}</p>
+                      </div>
+                      <div class="cart-item-actions">
+                          <button class="btn btn-sm btn-outline-danger decrease-quantity-btn" data-cart-item-db-id="${item._id}">-</button>
+                          <input type="number" class="form-control quantity-input" value="${item.quantity}" min="1" data-cart-item-db-id="${item._id}">
+                          <button class="btn btn-sm btn-outline-success increase-quantity-btn" data-cart-item-db-id="${item._id}">+</button>
+                          <span class="ms-3 me-3 fs-5">$${itemTotal.toFixed(2)}</span>
+                          <button class="btn btn-danger remove-from-cart-btn" data-cart-item-db-id="${item._id}"><i class="fas fa-trash"></i></button>
+                      </div>
+                  `;
+                  itemsContainer.appendChild(cartItemCard);
+                  overallTotal += itemTotal;
+              });
+              cartItemsListDiv.appendChild(restaurantDiv);
+          }
+          cartTotalSpan.innerText = overallTotal.toFixed(2); // Update overall total display
+  
+          // Attach event listeners for quantity and remove buttons
+          document.querySelectorAll('.decrease-quantity-btn').forEach(button => {
+              button.addEventListener('click', (e) => {
+                  const cartItemDbId = e.currentTarget.dataset.cartItemDbId;
+                  const currentQuantity = parseInt(e.currentTarget.nextElementSibling.value);
+                  updateCartItemQuantity(cartItemDbId, currentQuantity - 1);
+              });
+          });
+  
+          document.querySelectorAll('.increase-quantity-btn').forEach(button => {
+              button.addEventListener('click', (e) => {
+                  const cartItemDbId = e.currentTarget.dataset.cartItemDbId;
+                  const currentQuantity = parseInt(e.currentTarget.previousElementSibling.value);
+                  updateCartItemQuantity(cartItemDbId, currentQuantity + 1);
+              });
+          });
+  
+          document.querySelectorAll('.quantity-input').forEach(input => {
+              input.addEventListener('change', (e) => {
+                  const cartItemDbId = e.currentTarget.dataset.cartItemDbId;
+                  const newQuantity = parseInt(e.currentTarget.value);
+                  updateCartItemQuantity(cartItemDbId, newQuantity);
+              });
+          });
+  
+          document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+              button.addEventListener('click', (e) => {
+                  const cartItemDbId = e.currentTarget.dataset.cartItemDbId;
+                  confirmationMessage.innerHTML = `Are you sure you want to **remove** this item from your cart?`;
+                  currentAction = () => removeFromCart(cartItemDbId);
+                  confirmationModal.show();
+              });
+          });
+      }
+  
+      async function updateCartItemQuantity(cartItemDbId, newQuantity) {
+          if (newQuantity < 1) { // If quantity drops to 0 or less, remove the item
+              removeFromCart(cartItemDbId);
+              return;
+          }
+          try {
+              const result = await makeAuthenticatedRequest(`/api/customer/cart/${cartItemDbId}`, 'PUT', {
+                  quantity: newQuantity
+              });
+              if (result) {
+                  displayMessage('Cart quantity updated successfully!', 'success');
+                  fetchCartItems(); // Refresh cart display to show updated totals/items
+              }
+          } catch (error) {
+              console.error('Error updating cart quantity:', error);
+              displayMessage('Failed to update cart quantity: ' + error.message, 'danger');
+          }
+      }
+  
+      async function removeFromCart(cartItemDbId) {
+          confirmationModal.hide(); // Hide confirmation modal first
+          try {
+              const result = await makeAuthenticatedRequest(`/api/customer/cart/${cartItemDbId}`, 'DELETE');
+              if (result) {
+                  displayMessage(result.message, 'success');
+                  fetchCartItems(); // Refresh cart display
+              }
+          } catch (error) {
+              console.error('Error removing from cart:', error);
+              displayMessage('Failed to remove item from cart: ' + error.message, 'danger');
+          }
+      }
+  
+      placeOrderBtn.addEventListener('click', async () => {
+          cartMessageDiv.innerHTML = ''; // Clear previous messages
+  
+          if (customerCart.length === 0) {
+              displayMessage('Your cart is empty. Please add items before placing an order.', 'warning');
+              return;
+          }
+  
+          // Fetch latest profile to ensure address is up-to-date
+          try {
+              const profile = await makeAuthenticatedRequest(`/api/customer/profile`);
+              if (!profile || !profile.user || !profile.user.address || !profile.user.address.trim()) {
+                  displayMessage('Please update your profile with a delivery address before placing an order.', 'warning');
+                  showSection('profile-management'); // Navigate to profile management
+                  return;
+              }
+              currentUserAddress = profile.user.address.trim(); // Update global address variable
+              profileAddressInput.value = currentUserAddress; // Also update the input field
+          } catch (error) {
+              console.error('Error fetching profile for order placement:', error);
+              displayMessage('Failed to retrieve your address. Please check your profile and try again.', 'danger');
+              return;
+          }
+  
+          // Group cart items by restaurant to place separate orders
+          const ordersToPlace = {};
+          customerCart.forEach(cartItem => {
+              if (!cartItem.restaurant || !cartItem.foodItem) {
+                  console.error("Cart item missing populated restaurant or foodItem, skipping:", cartItem);
+                  // Optionally, remove this item from cart or show error specific to this item
+                  return;
+              }
+              const restaurantId = cartItem.restaurant._id;
+              if (!ordersToPlace[restaurantId]) {
+                  ordersToPlace[restaurantId] = {
+                      restaurant: restaurantId, // Only ID is needed for the backend
+                      items: [],
+                      paymentMethod: paymentMethodSelect.value,
+                      deliveryAddress: currentUserAddress // Use the fetched current address
+                  };
+              }
+              ordersToPlace[restaurantId].items.push({
+                  foodItem: cartItem.foodItem._id, // Only ID is needed for the backend
+                  quantity: cartItem.quantity,
+                  price: cartItem.priceAtTimeOfAddition // Price at the time of adding to cart
+              });
+          });
+  
+          // Place each order sequentially
+          const orderPromises = [];
+          for (const restaurantId in ordersToPlace) {
+              const orderPayload = ordersToPlace[restaurantId];
+              orderPromises.push(makeAuthenticatedRequest('/api/customer/orders', 'POST', orderPayload));
+          }
+  
+          try {
+              await Promise.all(orderPromises);
+              displayMessage('Your order(s) have been placed successfully!', 'success');
+              // After successful order placement, clear the cart
+              await makeAuthenticatedRequest('/api/customer/cart/clear', 'DELETE');
+              fetchCartItems(); // Re-fetch to clear display and update count to 0
+              fetchDashboardCounts(); // Update dashboard counts
+              fetchCustomerOrders(); // Refresh orders list
+          } catch (error) {
+              console.error('Error placing order(s):', error);
+              displayMessage('Failed to place some or all orders: ' + error.message, 'danger');
+          }
+      });
+  
+      // --- Feedback to Admin Functions ---
+      sendFeedbackToAdminForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          sendFeedbackToAdminMessage.innerHTML = '';
+          const message = document.getElementById('feedbackMessage').value.trim();
+
+          if (!message) {
+              displayMessage('Feedback message cannot be empty.', 'warning', sendFeedbackToAdminMessage);
+              return;
+          }
+
+          try {
+              const result = await makeAuthenticatedRequest(`/api/customer/feedback/admin`, 'POST', { message });
+              if (result) {
+                  displayMessage(result.message, 'success', sendFeedbackToAdminMessage);
+                  sendFeedbackToAdminForm.reset();
+                  fetchCustomerFeedbackToAdmin();
+              }
+          } catch (err) {
+              console.error('Error sending feedback to admin:', err);
+              displayMessage(`Failed to send feedback: ${err.message}`, 'danger', sendFeedbackToAdminMessage);
+          }
+      });
+
+      async function fetchCustomerFeedbackToAdmin() {
+        customerFeedbackToAdminTableBody.innerHTML = '<tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading previous feedback...</td></tr>';
+        customerFeedbackToAdminLoadingError.style.display = 'none';
+
+        try {
+            const feedback = await makeAuthenticatedRequest(`/api/customer/feedback/admin-sent`);
+            if (!feedback) return;
+
+            renderCustomerFeedbackToAdminTable(feedback);
+        } catch (err) {
+            console.error("Error fetching customer feedback to admin:", err);
+            customerFeedbackToAdminLoadingError.style.display = 'block';
+            customerFeedbackToAdminTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load previous feedback.</td></tr>';
+        }
+      }
+
+      function renderCustomerFeedbackToAdminTable(feedback) {
+        customerFeedbackToAdminTableBody.innerHTML = '';
+        if (feedback.length === 0) {
+            customerFeedbackToAdminTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No feedback sent to admin yet.</td></tr>';
+            return;
+        }
+
+        feedback.forEach(f => {
+          const feedbackDate = new Date(f.createdAt).toLocaleString();
+          const statusBadgeClass = {
+            'new': 'bg-primary',
+            'pending': 'bg-info',
+            'resolved': 'bg-success'
+          }[f.status] || 'bg-secondary';
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${f._id.substring(0, 8) + '...'}</td>
+            <td>${f.message ? f.message.substring(0, 100) + (f.message.length > 100 ? '...' : '') : 'N/A'}</td>
+            <td><span class="badge ${statusBadgeClass}">${f.status.charAt(0).toUpperCase() + f.status.slice(1)}</span></td>
+            <td>${feedbackDate}</td>
+          `;
+          customerFeedbackToAdminTableBody.appendChild(row);
+        });
+      }
+
+
+      // --- Profile Management Functions ---
+      async function fetchCustomerProfile() {
+          customerProfileMessage.innerHTML = ''; // Clear previous messages
+          try {
+              const userProfile = await makeAuthenticatedRequest('/api/customer/profile');
+              if (userProfile && userProfile.user) {
+                  profileNameInput.value = userProfile.user.name || '';
+                  profileEmailInput.value = userProfile.user.email || '';
+                  profileAddressInput.value = userProfile.user.address || '';
+                  profilePhoneInput.value = userProfile.user.phone || '';
+                  currentUserAddress = userProfile.user.address || ''; // Update global address
+              } else {
+                  displayMessage('Failed to load profile data. Please try again.', 'danger', customerProfileMessage);
+              }
+          } catch (error) {
+              console.error('Error fetching customer profile:', error);
+              displayMessage(`Failed to load profile: ${error.message}`, 'danger', customerProfileMessage);
+          }
+      }
+  
+      customerProfileForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          customerProfileMessage.innerHTML = '';
+  
+          const name = profileNameInput.value.trim();
+          const address = profileAddressInput.value.trim();
+          const phone = profilePhoneInput.value.trim();
+  
+          const payload = { name, address, phone };
+  
+          try {
+              const result = await makeAuthenticatedRequest('/api/customer/profile', 'PUT', payload);
+              if (result && result.user) {
+                  displayMessage(result.message, 'success', customerProfileMessage);
+                  localStorage.setItem('userName', result.user.name); // Update local storage
+                  userName = result.user.name; // Update local variable
+                  customerNameDisplay.innerText = userName; // Update display
+                  currentUserAddress = result.user.address || ''; // Update global address
+                  // No need to hide modal, as profile is a section now
+              }
+          } catch (error) {
+              console.error('Error updating customer profile:', error);
+              displayMessage(`Failed to update profile: ${error.message}`, 'danger', customerProfileMessage);
+          }
+      });
+  
+  
+      // --- Logout Functionality ---
+      logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          localStorage.removeItem('userType');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userEmail');
+          alert('You have been logged out.');
+          window.location.href = '/login.html';
+      });
+  
+      // --- Confirmation Modal Logic ---
+      confirmActionButton.addEventListener('click', () => {
+          if (currentAction) {
+              currentAction();
+              currentAction = null; // Reset action
+          }
+      });
+  
+      // --- Initial Load ---
+      fetchCustomerProfile(); // Fetch profile first to get address for filters
+      fetchDashboardCounts();
+    });
+  </script>
+
+
+
+</body>
+</html>

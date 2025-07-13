@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #4CAF50; /* Green theme for restaurant */
+      color: white;
+      flex-shrink: 0;
+      border-right: 1px solid #388E3C;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    .sidebar h4 {
+        color: #fff;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #66BB6A;
+        margin-bottom: 15px;
+    }
+    .sidebar .nav-link {
+      color: white;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        font-size: 1.1em;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: #66BB6A;
+      color: #FFF9C4; /* Light yellow highlight */
+    }
+    .topbar {
+      background-color: #f8f9fa;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e9ecef;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    .main-content-area {
+      flex: 1;
+      padding: 20px;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .card {
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .data-section {
+        display: none;
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        min-height: 500px;
+    }
+    .data-section.active {
+        display: block;
+    }
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    .table thead {
+        background-color: #f1f3f5;
+    }
+    .table th {
+        vertical-align: middle;
+    }
+    .badge {
+        font-size: 0.85em;
+        padding: 0.5em 0.7em;
+        border-radius: 0.5rem;
+    }
+    .btn-action {
+        padding: 5px 10px;
+        font-size: 0.85em;
+        margin-right: 5px;
+        border-radius: 5px;
+    }
+    /* Custom Modal styles */
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        background-color: #4CAF50; /* Green header */
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom: none;
+    }
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    .modal-footer {
+        border-top: none;
+    }
+    .form-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .sidebar .nav-item.disabled .nav-link {
+        color: #888;
+        pointer-events: none;
+        background-color: #2c3136;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column p-3">
+    <h4 class="text-center mb-4">Restaurant Panel</h4>
+    <ul class="nav flex-column" id="sidebarNav">
+        <li class="nav-item"><a class="nav-link active" href="#" data-section="dashboard-overview"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</a></li>
+        <li class="nav-item" id="allItemsLink"><a class="nav-link" href="#" data-section="all-items"><i class="fas fa-pizza-slice"></i> All Items</a></li>
+        <li class="nav-item" id="addItemLink"><a class="nav-link" href="#" data-section="add-item"><i class="fas fa-plus-circle"></i> Add Item</a></li>
+        <li class="nav-item" id="ordersManagementLink"><a class="nav-link" href="#" data-section="orders-management"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+        <li class="nav-item" id="ratingsManagementLink"><a class="nav-link" href="#" data-section="ratings-management"><i class="fas fa-star"></i> Ratings</a></li>
+        <li class="nav-item" id="reportsManagementLink"><a class="nav-link" href="#" data-section="reports-management"><i class="fas fa-chart-line"></i> Reports</a></li>
+        <li class="nav-item" id="feedbackManagementLink"><a class="nav-link" href="#" data-section="feedback-management"><i class="fas fa-comment-dots"></i> Feedback (to Admin)</a></li>
+        <li class="nav-item" id="profileManagementLink"><a class="nav-link" href="#" data-section="profile-management"><i class="fas fa-user-circle"></i> Restaurant Profile</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main flex-grow-1 d-flex flex-column">
+    <!-- Topbar -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+      <h5 id="dashboardTitle">Restaurant Dashboard</h5>
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle rounded-pill" type="button" id="restaurantDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <span id="restaurantNameDisplay">Loading...</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="restaurantDropdown">
+          <li><a class="dropdown-item" href="#" id="editRestaurantProfileBtn">Edit Restaurant Profile</a></li>
+          <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Area -->
+    <div class="main-content-area flex-grow-1">
+
+      <!-- Dashboard Overview Section (Initial view) -->
+      <div id="dashboard-overview" class="data-section active">
+        <h2 class="mb-4 text-center">Dashboard Overview</h2>
+        <div id="restaurantNotConfiguredMessage" class="alert alert-warning text-center" style="display:none;">
+            Your restaurant profile is not yet set up. Please go to the "Restaurant Profile" section to add your restaurant details.
+        </div>
+        <div id="dashboardStats" class="row g-4">
+          <div class="col-md-4">
+            <div class="card text-white bg-primary">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-pizza-slice"></i> Total Menu Items</h5>
+                <p class="card-text fs-3" id="totalMenuItems">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-warning">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-hourglass-start"></i> Pending Orders</h5>
+                <p class="card-text fs-3" id="pendingOrdersCount">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-success">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-check-circle"></i> Delivered Orders</h5>
+                <p class="card-text fs-3" id="deliveredOrdersCount">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-info">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-star"></i> Average Rating</h5>
+                <p class="card-text fs-3" id="averageRating">N/A</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-danger">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-times-circle"></i> Cancelled Orders</h5>
+                <p class="card-text fs-3" id="cancelledOrdersCount">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Items Section -->
+      <div id="all-items" class="data-section">
+        <h2 class="mb-4 text-center">All Menu Items</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Discount (%)</th>
+                <th>Rating</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="menuItemsTableBody">
+              <tr><td colspan="9" class="text-center">Loading menu items...</td></tr>
+            </tbody>
+          </table>
+          <p id="menuItemsLoadingError" class="text-danger text-center" style="display:none;">Failed to load menu items.</p>
+        </div>
+      </div>
+
+      <!-- Add Item Section -->
+      <div id="add-item" class="data-section">
+        <h2 class="mb-4 text-center">Add New Menu Item</h2>
+        <div class="form-section">
+            <form id="addMenuItemForm">
+                <div class="mb-3">
+                    <label for="itemTitle" class="form-label">Item Title</label>
+                    <input type="text" class="form-control rounded-pill" id="itemTitle" required>
+                </div>
+                <div class="mb-3">
+                    <label for="itemDescription" class="form-label">Description</label>
+                    <textarea class="form-control rounded-pill" id="itemDescription" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="itemCategory" class="form-label">Category</label>
+                    <select class="form-select rounded-pill" id="itemCategory" required>
+                        <option value="">Select Category</option>
+                        <!-- Categories will be loaded here -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="itemPrice" class="form-label">Price</label>
+                    <input type="number" step="0.01" min="0" class="form-control rounded-pill" id="itemPrice" required>
+                </div>
+                <div class="mb-3">
+                    <label for="itemDiscount" class="form-label">Discount (%)</label>
+                    <input type="number" step="1" min="0" max="100" class="form-control rounded-pill" id="itemDiscount" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="itemImage" class="form-label">Image URL</label>
+                    <input type="url" class="form-control rounded-pill" id="itemImage">
+                    <small class="form-text text-muted">Provide a direct URL to the food item image.</small>
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill">Add Item</button>
+                <div id="addMenuItemMessage" class="mt-3"></div>
+            </form>
+        </div>
+      </div>
+
+      <!-- Orders Management Section -->
+      <div id="orders-management" class="data-section">
+        <h2 class="mb-4 text-center">Orders Management</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Items</th>
+                <th>Total Price</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="restaurantOrdersTableBody">
+              <tr><td colspan="7" class="text-center">Loading orders...</td></tr>
+            </tbody>
+          </table>
+          <p id="restaurantOrdersLoadingError" class="text-danger text-center" style="display:none;">Failed to load orders.</p>
+        </div>
+      </div>
+
+      <!-- Ratings Management Section -->
+      <div id="ratings-management" class="data-section">
+        <h2 class="mb-4 text-center">Customer Ratings & Feedback</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Feedback ID</th>
+                <th>Customer Name</th>
+                <th>Rating</th>
+                <th>Message</th>
+                <th>Order ID</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="customerRatingsTableBody">
+              <tr><td colspan="6" class="text-center">Loading ratings...</td></tr>
+            </tbody>
+          </table>
+          <p id="customerRatingsLoadingError" class="text-danger text-center" style="display:none;">Failed to load ratings.</p>
+        </div>
+      </div>
+
+      <!-- Reports Section -->
+      <div id="reports-management" class="data-section">
+        <h2 class="mb-4 text-center">Reports</h2>
+        <p>This section can display reports specific to your restaurant, e.g., sales over time, most popular dishes, etc.</p>
+        <p class="alert alert-info">Reports functionality is a placeholder. Please contact developer to implement specific reports.</p>
+      </div>
+
+      <!-- Feedback (to Admin) Section -->
+      <div id="feedback-management" class="data-section">
+        <h2 class="mb-4 text-center">Feedback to Admin</h2>
+        <div class="form-section mb-4">
+            <h4>Send Feedback to Admin</h4>
+            <form id="sendFeedbackToAdminForm">
+                <div class="mb-3">
+                    <label for="feedbackMessage" class="form-label">Your Message</label>
+                    <textarea class="form-control rounded-pill" id="feedbackMessage" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill">Send Feedback</button>
+                <div id="sendFeedbackToAdminMessage" class="mt-3"></div>
+            </form>
+        </div>
+        <h4>Previous Feedback</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Feedback ID</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="restaurantFeedbackTableBody">
+                    <tr><td colspan="4" class="text-center">Loading previous feedback...</td></tr>
+                </tbody>
+            </table>
+            <p id="restaurantFeedbackLoadingError" class="text-danger text-center" style="display:none;">Failed to load previous feedback.</p>
+        </div>
+      </div>
+
+      <!-- Restaurant Profile Section -->
+      <div id="profile-management" class="data-section">
+        <h2 class="mb-4 text-center" id="profileFormTitle">Restaurant Profile</h2>
+        <div class="form-section">
+            <form id="restaurantProfileForm">
+                <div class="mb-3">
+                    <label for="profileRestaurantTitle" class="form-label">Restaurant Title</label>
+                    <input type="text" class="form-control rounded-pill" id="profileRestaurantTitle" required>
+                </div>
+                <div class="mb-3">
+                    <label for="profileRestaurantDescription" class="form-label">Description</label>
+                    <textarea class="form-control rounded-pill" id="profileRestaurantDescription" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="profileRestaurantAddress" class="form-label">Address</label>
+                    <input type="text" class="form-control rounded-pill" id="profileRestaurantAddress" required>
+                </div>
+                <div class="mb-3">
+                    <label for="profileRestaurantImage" class="form-label">Image URL</label>
+                    <input type="url" class="form-control rounded-pill" id="profileRestaurantImage">
+                    <small class="form-text text-muted">Direct URL to your restaurant's main image.</small>
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill" id="saveProfileBtn">Save Profile</button>
+                <div id="restaurantProfileMessage" class="mt-3"></div>
+            </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmationMessage">
+          Are you sure you want to perform this action?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary rounded-pill" id="confirmActionButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Item Modal -->
+  <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editItemModalLabel">Edit Menu Item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editMenuItemForm">
+            <input type="hidden" id="editItemId">
+            <div class="mb-3">
+                <label for="editItemTitle" class="form-label">Item Title</label>
+                <input type="text" class="form-control rounded-pill" id="editItemTitle" required>
+            </div>
+            <div class="mb-3">
+                <label for="editItemDescription" class="form-label">Description</label>
+                <textarea class="form-control rounded-pill" id="editItemDescription" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="editItemCategory" class="form-label">Category</label>
+                <select class="form-select rounded-pill" id="editItemCategory" required>
+                    <!-- Categories will be loaded here -->
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="editItemPrice" class="form-label">Price</label>
+                <input type="number" step="0.01" min="0" class="form-control rounded-pill" id="editItemPrice" required>
+            </div>
+            <div class="mb-3">
+                <label for="editItemDiscount" class="form-label">Discount (%)</label>
+                <input type="number" step="1" min="0" max="100" class="form-control rounded-pill" id="editItemDiscount">
+            </div>
+            <div class="mb-3">
+                <label for="editItemImage" class="form-label">Image URL</label>
+                <input type="url" class="form-control rounded-pill" id="editItemImage">
+            </div>
+            <button type="submit" class="btn btn-primary rounded-pill">Save Changes</button>
+            <div id="editMenuItemMessage" class="mt-3"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      const userType = localStorage.getItem('userType');
+      const userName = localStorage.getItem('userName');
+      const userId = localStorage.getItem('userId'); // Logged-in User ID (owner ID)
+      let restaurantId = null; // Will be fetched and assigned
+
+      const restaurantNameDisplay = document.getElementById('restaurantNameDisplay');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const editRestaurantProfileBtn = document.getElementById('editRestaurantProfileBtn');
+      const dashboardTitle = document.getElementById('dashboardTitle');
+      const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+      const dataSections = document.querySelectorAll('.data-section');
+      
+      // Sidebar link wrappers to enable/disable
+      const allItemsLink = document.getElementById('allItemsLink');
+      const addItemLink = document.getElementById('addItemLink');
+      const ordersManagementLink = document.getElementById('ordersManagementLink');
+      const ratingsManagementLink = document.getElementById('ratingsManagementLink');
+      const reportsManagementLink = document.getElementById('reportsManagementLink');
+      const feedbackManagementLink = document.getElementById('feedbackManagementLink');
+      const profileManagementLink = document.getElementById('profileManagementLink'); // Always enabled
+
+      // Table Bodies & Error Elements
+      const menuItemsTableBody = document.getElementById('menuItemsTableBody');
+      const menuItemsLoadingError = document.getElementById('menuItemsLoadingError');
+      const restaurantOrdersTableBody = document.getElementById('restaurantOrdersTableBody');
+      const restaurantOrdersLoadingError = document.getElementById('restaurantOrdersLoadingError');
+      const customerRatingsTableBody = document.getElementById('customerRatingsTableBody');
+      const customerRatingsLoadingError = document.getElementById('customerRatingsLoadingError');
+      const restaurantFeedbackTableBody = document.getElementById('restaurantFeedbackTableBody');
+      const restaurantFeedbackLoadingError = document.getElementById('restaurantFeedbackLoadingError');
+
+      // Forms & Messages
+      const addMenuItemForm = document.getElementById('addMenuItemForm');
+      const itemCategorySelect = document.getElementById('itemCategory');
+      const addMenuItemMessage = document.getElementById('addMenuItemMessage');
+      const sendFeedbackToAdminForm = document.getElementById('sendFeedbackToAdminForm');
+      const sendFeedbackToAdminMessage = document.getElementById('sendFeedbackToAdminMessage');
+      const restaurantProfileForm = document.getElementById('restaurantProfileForm');
+      const restaurantProfileMessage = document.getElementById('restaurantProfileMessage');
+      const profileFormTitle = document.getElementById('profileFormTitle');
+      const saveProfileBtn = document.getElementById('saveProfileBtn');
+      const dashboardStats = document.getElementById('dashboardStats');
+      const restaurantNotConfiguredMessage = document.getElementById('restaurantNotConfiguredMessage');
+
+
+      // Modals
+      const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+      const confirmActionButton = document.getElementById('confirmActionButton');
+      const confirmationMessage = document.getElementById('confirmationMessage');
+      let currentAction = null; // To store the function to execute on confirmation
+
+      const editItemModal = new bootstrap.Modal(document.getElementById('editItemModal'));
+      const editMenuItemForm = document.getElementById('editMenuItemForm');
+      const editItemIdInput = document.getElementById('editItemId');
+      const editItemTitleInput = document.getElementById('editItemTitle');
+      const editItemDescriptionInput = document.getElementById('editItemDescription');
+      const editItemCategorySelect = document.getElementById('editItemCategory');
+      const editItemPriceInput = document.getElementById('editItemPrice');
+      const editItemDiscountInput = document.getElementById('editItemDiscount');
+      const editItemImageInput = document.getElementById('editItemImage');
+      const editMenuItemMessage = document.getElementById('editMenuItemMessage');
+
+
+      // --- Client-side authentication check ---
+      if (!token || userType !== 'restaurant') {
+        alert('Unauthorized access. Please log in as a restaurant owner.');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Display user name initially
+      if (userName) {
+          restaurantNameDisplay.innerText = userName;
+      } else {
+          restaurantNameDisplay.innerText = 'Restaurant Owner';
+      }
+
+      // --- Helper to enable/disable specific sidebar links ---
+      function setSidebarLinksEnabled(enable) {
+          const linksToToggle = [
+              allItemsLink, addItemLink, ordersManagementLink,
+              ratingsManagementLink, reportsManagementLink, feedbackManagementLink
+          ];
+          linksToToggle.forEach(linkElement => {
+              if (enable) {
+                  linkElement.classList.remove('disabled');
+              } else {
+                  linkElement.classList.add('disabled');
+              }
+          });
+      }
+
+      // --- Helper for API Calls ---
+      async function makeAuthenticatedRequest(url, method = 'GET', body = null) {
+          try {
+              const options = {
+                  method: method,
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                  }
+              };
+              if (body) {
+                  options.body = JSON.stringify(body);
+              }
+
+              const res = await fetch(url, options);
+
+              if (res.status === 401 || res.status === 403) {
+                  alert('Session expired or unauthorized. Please login again.');
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('userType');
+                  localStorage.removeItem('userName');
+                  localStorage.removeItem('userId');
+                  window.location.href = '/login.html';
+                  return null; // Return null to indicate failure and redirect
+              }
+              
+              if (!res.ok) {
+                  const errorData = await res.json();
+                  throw new Error(errorData.message || res.statusText);
+              }
+
+              return await res.json();
+
+          } catch (error) {
+              console.error(`Error in ${method} ${url}:`, error);
+              if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                  alert('Network error: Could not connect to the server. Please check your internet connection.');
+              }
+              throw error; // Re-throw to be caught by specific fetch functions
+          }
+      }
+
+      // --- Fetch Restaurant ID and status associated with logged-in user ---
+      async function checkRestaurantStatus() {
+        try {
+            const data = await makeAuthenticatedRequest(`/api/restaurant/my-restaurant-id`);
+            if (!data) { // Authentication error leading to redirect
+                return;
+            }
+            restaurantId = data.restaurantId; // Will be null if not found
+            
+            if (data.restaurantExists) {
+                setSidebarLinksEnabled(true); // Enable all links
+                restaurantNameDisplay.innerText = data.restaurantTitle; // Display actual restaurant title
+                dashboardStats.style.display = 'flex'; // Show stats
+                restaurantNotConfiguredMessage.style.display = 'none'; // Hide warning
+                fetchDashboardCounts(); // Fetch dashboard counts only if restaurant exists
+            } else {
+                // Restaurant does not exist for this user, force them to create it
+                setSidebarLinksEnabled(false); // Disable most links
+                profileManagementLink.classList.remove('disabled'); // Keep profile link enabled
+                dashboardStats.style.display = 'none'; // Hide stats
+                restaurantNotConfiguredMessage.style.display = 'block'; // Show warning
+                showSection('profile-management'); // Force redirect to profile setup
+                profileFormTitle.innerText = "Setup Your Restaurant Profile";
+                saveProfileBtn.innerText = "Create Restaurant Profile";
+                alert('Welcome! Please create your restaurant profile to get started.');
+            }
+        } catch (error) {
+            console.error('Error checking restaurant status:', error);
+            alert('Failed to get restaurant details. Ensure your account is associated with a restaurant or create one.');
+            setSidebarLinksEnabled(false);
+            profileManagementLink.classList.remove('disabled');
+            dashboardStats.style.display = 'none';
+            restaurantNotConfiguredMessage.style.display = 'block';
+            restaurantNotConfiguredMessage.innerText = 'Failed to load restaurant status. Please try again or contact support.';
+        }
+      }
+
+
+      // --- Sidebar Navigation ---
+      function showSection(sectionId) {
+          // Hide all sections
+          dataSections.forEach(section => section.classList.remove('active'));
+          // Show the requested section
+          document.getElementById(sectionId).classList.add('active');
+          // Update active link in sidebar
+          sidebarLinks.forEach(link => link.classList.remove('active'));
+          document.querySelector(`.sidebar .nav-link[data-section="${sectionId}"]`).classList.add('active');
+          // Update dashboard title
+          dashboardTitle.innerText = document.querySelector(`.sidebar .nav-link[data-section="${sectionId}"]`).innerText;
+      }
+
+      sidebarLinks.forEach(link => {
+          link.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const sectionId = e.currentTarget.dataset.section;
+
+              // If restaurantId is not available and it's not the profile section, block access
+              if (!restaurantId && sectionId !== 'profile-management') {
+                  alert('Please create your restaurant profile first in the "Restaurant Profile" section.');
+                  showSection('profile-management');
+                  return;
+              }
+
+              showSection(sectionId);
+
+              // Specific actions when a section is activated
+              switch (sectionId) {
+                  case 'dashboard-overview':
+                      fetchDashboardCounts();
+                      break;
+                  case 'all-items':
+                      fetchMenuItems();
+                      break;
+                  case 'add-item':
+                      fetchCategoriesForDropdown(); // Populate categories when "Add Item" is clicked
+                      break;
+                  case 'orders-management':
+                      fetchRestaurantOrders();
+                      break;
+                  case 'ratings-management':
+                      fetchCustomerRatings();
+                      break;
+                  case 'reports-management':
+                      // No initial fetch for reports, placeholder
+                      break;
+                  case 'feedback-management':
+                      fetchRestaurantFeedbackToAdmin();
+                      break;
+                  case 'profile-management':
+                      fetchRestaurantProfile(); // This will handle both create and edit scenarios
+                      break;
+              }
+          });
+      });
+
+      // --- Fetch Dashboard Counts ---
+      async function fetchDashboardCounts() {
+        try {
+          if (!restaurantId) { // Should not happen if sidebar links are disabled correctly
+              console.warn("Attempted to fetch dashboard counts without restaurantId.");
+              return;
+          }
+          const data = await makeAuthenticatedRequest(`/api/restaurant/dashboard-counts`); // No restaurantId in URL anymore
+          if (!data) return;
+
+          document.getElementById('totalMenuItems').innerText = data.totalMenuItems;
+          document.getElementById('pendingOrdersCount').innerText = data.pendingOrdersCount;
+          document.getElementById('deliveredOrdersCount').innerText = data.deliveredOrdersCount;
+          document.getElementById('cancelledOrdersCount').innerText = data.cancelledOrdersCount;
+          document.getElementById('averageRating').innerText = data.averageRating.toFixed(1) + ' / 5' || 'N/A';
+
+        } catch (err) {
+          console.error("Error fetching dashboard data:", err);
+          document.getElementById('totalMenuItems').innerText = 'N/A';
+          document.getElementById('pendingOrdersCount').innerText = 'N/A';
+          document.getElementById('deliveredOrdersCount').innerText = 'N/A';
+          document.getElementById('cancelledOrdersCount').innerText = 'N/A';
+          document.getElementById('averageRating').innerText = 'N/A';
+          alert('Failed to load dashboard data. Please check your internet connection or server status.');
+        }
+      }
+
+      // --- Fetch Menu Items ---
+      async function fetchMenuItems() {
+        menuItemsTableBody.innerHTML = '<tr><td colspan="9" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading menu items...</td></tr>';
+        menuItemsLoadingError.style.display = 'none';
+
+        try {
+          if (!restaurantId) { console.warn("Restaurant ID missing for menu items fetch."); return; }
+          const items = await makeAuthenticatedRequest(`/api/restaurant/items`); // No restaurantId in URL anymore
+          if (!items) return;
+
+          renderMenuItemsTable(items);
+
+        } catch (err) {
+          console.error("Error fetching menu items:", err);
+          menuItemsLoadingError.style.display = 'block';
+          menuItemsTableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load menu items. Check console for details.</td></tr>';
+        }
+      }
+
+      function renderMenuItemsTable(items) {
+        menuItemsTableBody.innerHTML = '';
+        if (items.length === 0) {
+            menuItemsTableBody.innerHTML = '<tr><td colspan="9" class="text-center">No menu items found.</td></tr>';
+            return;
+        }
+
+        items.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item._id}</td>
+            <td>${item.title}</td>
+            <td>${item.description ? item.description.substring(0, 50) + (item.description.length > 50 ? '...' : '') : 'N/A'}</td>
+            <td>${item.category}</td>
+            <td>$${item.price.toFixed(2)}</td>
+            <td>${item.discount || 0}%</td>
+            <td>${item.averageRating !== undefined && item.averageRating !== null ? item.averageRating.toFixed(1) : 'N/A'} <i class="fas fa-star text-warning"></i></td>
+            <td>${item.image ? `<img src="${item.image}" alt="${item.title}" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;">` : 'No Image'}</td>
+            <td>
+              <button class="btn btn-sm btn-info btn-action edit-item-btn" data-item-id="${item._id}"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-danger btn-action delete-item-btn" data-item-id="${item._id}"><i class="fas fa-trash"></i></button>
+            </td>
+          `;
+          menuItemsTableBody.appendChild(row);
+        });
+
+        // Add event listeners to the new buttons
+        document.querySelectorAll('.edit-item-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const itemId = e.currentTarget.dataset.itemId;
+                // Find the item in the fetched list (or refetch if necessary)
+                const itemToEdit = items.find(item => item._id === itemId);
+                if (itemToEdit) {
+                    populateEditItemModal(itemToEdit);
+                    editItemModal.show();
+                } else {
+                    alert('Item not found for editing.');
+                }
+            });
+        });
+
+        document.querySelectorAll('.delete-item-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const itemId = e.currentTarget.dataset.itemId;
+                confirmationMessage.innerHTML = `Are you sure you want to **delete** this menu item?`;
+                currentAction = () => deleteMenuItem(itemId);
+                confirmationModal.show();
+            });
+        });
+      }
+
+      // --- Populate Categories for Add/Edit Item dropdowns ---
+      async function fetchCategoriesForDropdown() {
+          try {
+              // Updated endpoint for categories accessible by restaurants
+              const categories = await makeAuthenticatedRequest('/api/restaurant/categories');
+              if (!categories) return;
+
+              itemCategorySelect.innerHTML = '<option value="">Select Category</option>';
+              editItemCategorySelect.innerHTML = '<option value="">Select Category</option>';
+              categories.forEach(cat => {
+                  const option = document.createElement('option');
+                  option.value = cat;
+                  option.textContent = cat;
+                  itemCategorySelect.appendChild(option);
+                  editItemCategorySelect.appendChild(option.cloneNode(true)); // Clone for edit modal
+              });
+          } catch (error) {
+              console.error('Error fetching categories for dropdown:', error);
+              alert('Failed to load categories for item forms.');
+          }
+      }
+
+      // --- Add New Menu Item ---
+      addMenuItemForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          addMenuItemMessage.innerHTML = '';
+          const newMenuItem = {
+              title: document.getElementById('itemTitle').value,
+              description: document.getElementById('itemDescription').value,
+              category: document.getElementById('itemCategory').value,
+              price: parseFloat(document.getElementById('itemPrice').value),
+              discount: parseInt(document.getElementById('itemDiscount').value),
+              image: document.getElementById('itemImage').value
+              // restaurantId is now inferred from backend middleware
+          };
+
+          try {
+              const result = await makeAuthenticatedRequest(`/api/restaurant/items`, 'POST', newMenuItem);
+              if (!result) return;
+
+              addMenuItemMessage.className = 'mt-3 alert alert-success';
+              addMenuItemMessage.innerText = result.message;
+              addMenuItemForm.reset();
+              fetchMenuItems(); // Refresh the list
+              fetchDashboardCounts(); // Update dashboard counts
+          } catch (err) {
+              addMenuItemMessage.className = 'mt-3 alert alert-danger';
+              addMenuItemMessage.innerText = `Failed to add item: ${err.message}`;
+              console.error('Error adding menu item:', err);
+          }
+      });
+
+      // --- Populate Edit Item Modal ---
+      function populateEditItemModal(item) {
+          editItemIdInput.value = item._id;
+          editItemTitleInput.value = item.title;
+          editItemDescriptionInput.value = item.description || '';
+          editItemPriceInput.value = item.price;
+          editItemDiscountInput.value = item.discount || 0;
+          editItemImageInput.value = item.image || '';
+
+          // Set selected category
+          Array.from(editItemCategorySelect.options).forEach(option => {
+              option.selected = (option.value === item.category);
+          });
+          editMenuItemMessage.innerHTML = ''; // Clear previous messages
+      }
+
+      // --- Edit Menu Item ---
+      editMenuItemForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          editMenuItemMessage.innerHTML = '';
+          const itemId = editItemIdInput.value;
+          const updatedMenuItem = {
+              title: editItemTitleInput.value,
+              description: editItemDescriptionInput.value,
+              category: editItemCategorySelect.value,
+              price: parseFloat(editItemPriceInput.value),
+              discount: parseInt(editItemDiscountInput.value),
+              image: editItemImageInput.value
+          };
+
+          try {
+              const result = await makeAuthenticatedRequest(`/api/restaurant/items/${itemId}`, 'PUT', updatedMenuItem);
+              if (!result) return;
+
+              editMenuItemMessage.className = 'mt-3 alert alert-success';
+              editMenuItemMessage.innerText = result.message;
+              editItemModal.hide();
+              fetchMenuItems(); // Refresh the list
+              fetchDashboardCounts(); // Update dashboard counts
+          } catch (err) {
+              editMenuItemMessage.className = 'mt-3 alert alert-danger';
+              editMenuItemMessage.innerText = `Failed to update item: ${err.message}`;
+              console.error('Error updating menu item:', err);
+          }
+      });
+
+      // --- Delete Menu Item ---
+      async function deleteMenuItem(itemId) {
+          try {
+              const result = await makeAuthenticatedRequest(`/api/restaurant/items/${itemId}`, 'DELETE');
+              if (!result) return;
+
+              alert(result.message);
+              confirmationModal.hide();
+              fetchMenuItems(); // Refresh the list
+              fetchDashboardCounts(); // Update dashboard counts
+          } catch (err) {
+              alert(`Failed to delete item: ${err.message}`);
+              console.error('Error deleting menu item:', err);
+              confirmationModal.hide();
+          }
+      }
+
+      // --- Fetch Restaurant Orders ---
+      async function fetchRestaurantOrders() {
+        restaurantOrdersTableBody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading orders...</td></tr>';
+        restaurantOrdersLoadingError.style.display = 'none';
+
+        try {
+          if (!restaurantId) { console.warn("Restaurant ID missing for orders fetch."); return; }
+          const orders = await makeAuthenticatedRequest(`/api/restaurant/orders`);
+          if (!orders) return;
+
+          renderRestaurantOrdersTable(orders);
+        } catch (err) {
+          console.error("Error fetching restaurant orders:", err);
+          restaurantOrdersLoadingError.style.display = 'block';
+          restaurantOrdersTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Failed to load orders.</td></tr>';
+        }
+      }
+
+      function renderRestaurantOrdersTable(orders) {
+        restaurantOrdersTableBody.innerHTML = '';
+        if (orders.length === 0) {
+            restaurantOrdersTableBody.innerHTML = '<tr><td colspan="7" class="text-center">No orders found.</td></tr>';
+            return;
+        }
+
+        orders.forEach(order => {
+          const orderDate = new Date(order.orderDate).toLocaleString();
+          const itemsList = order.items.map(item => `${item.foodItem.title} (x${item.quantity})`).join('<br>');
+          const statusBadgeClass = {
+            'pending': 'bg-warning text-dark',
+            'preparing': 'bg-info',
+            'delivered': 'bg-success',
+            'cancelled': 'bg-danger'
+          }[order.status] || 'bg-secondary';
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${order._id}</td>
+            <td>${order.user ? order.user.name : 'N/A'}</td>
+            <td>${itemsList}</td>
+            <td>$${order.totalAmount.toFixed(2)}</td> <!-- FIX APPLIED HERE: Changed from order.totalPrice -->
+            <td>${orderDate}</td>
+            <td><span class="badge ${statusBadgeClass}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
+            <td>
+              <select class="form-select form-select-sm status-dropdown" data-order-id="${order._id}">
+                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
+          `;
+          restaurantOrdersTableBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+          dropdown.addEventListener('change', (e) => {
+            const orderId = e.target.dataset.orderId;
+            const newStatus = e.target.value;
+            confirmationMessage.innerHTML = `Are you sure you want to change status of Order **${orderId.substring(0,6)}...** to **${newStatus.toUpperCase()}**?`;
+            currentAction = () => updateOrderStatus(orderId, newStatus);
+            confirmationModal.show();
+          });
+        });
+      }
+
+      // --- Update Order Status ---
+      async function updateOrderStatus(orderId, newStatus) {
+        try {
+          const result = await makeAuthenticatedRequest(`/api/restaurant/orders/${orderId}/status`, 'PUT', { status: newStatus });
+          if (!result) return;
+
+          alert(`Order ${orderId.substring(0,6)}... status updated to ${newStatus}!`);
+          confirmationModal.hide();
+          fetchRestaurantOrders(); // Refresh orders list
+          fetchDashboardCounts(); // Update dashboard counts
+        } catch (err) {
+          alert(`Failed to update order status: ${err.message}`);
+          console.error('Error updating order status:', err);
+          confirmationModal.hide();
+        }
+      }
+
+      // --- Fetch Customer Ratings ---
+      async function fetchCustomerRatings() {
+        customerRatingsTableBody.innerHTML = '<tr><td colspan="6" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading ratings...</td></tr>';
+        customerRatingsLoadingError.style.display = 'none';
+
+        try {
+          if (!restaurantId) { console.warn("Restaurant ID missing for ratings fetch."); return; }
+          const feedback = await makeAuthenticatedRequest(`/api/restaurant/feedback/customer`);
+          if (!feedback) return;
+
+          renderCustomerRatingsTable(feedback);
+        } catch (err) {
+          console.error("Error fetching customer ratings:", err);
+          customerRatingsLoadingError.style.display = 'block';
+          customerRatingsTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load customer ratings.</td></tr>';
+        }
+      }
+
+      function renderCustomerRatingsTable(feedback) {
+        customerRatingsTableBody.innerHTML = '';
+        if (feedback.length === 0) {
+            customerRatingsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No customer feedback received yet.</td></tr>';
+            return;
+        }
+
+        feedback.forEach(f => {
+          const feedbackDate = new Date(f.createdAt).toLocaleString();
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${f._id}</td>
+            <td>${f.user ? f.user.name : 'N/A'}</td>
+            <td>${f.rating ? `${f.rating} <i class="fas fa-star text-warning"></i>` : 'N/A'}</td>
+            <td>${f.message || 'No message'}</td>
+            <td>${f.order ? f.order : 'N/A'}</td>
+            <td>${feedbackDate}</td>
+          `;
+          customerRatingsTableBody.appendChild(row);
+        });
+      }
+
+      // --- Fetch Restaurant Feedback to Admin ---
+      async function fetchRestaurantFeedbackToAdmin() {
+        restaurantFeedbackTableBody.innerHTML = '<tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading previous feedback...</td></tr>';
+        restaurantFeedbackLoadingError.style.display = 'none';
+
+        try {
+          if (!restaurantId) { console.warn("Restaurant ID missing for feedback to admin fetch."); return; }
+          const feedback = await makeAuthenticatedRequest(`/api/restaurant/feedback/admin-sent`);
+          if (!feedback) return;
+
+          renderRestaurantFeedbackTable(feedback);
+        } catch (err) {
+          console.error("Error fetching restaurant feedback to admin:", err);
+          restaurantFeedbackLoadingError.style.display = 'block';
+          restaurantFeedbackTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load previous feedback.</td></tr>';
+        }
+      }
+
+      function renderRestaurantFeedbackTable(feedback) {
+        restaurantFeedbackTableBody.innerHTML = '';
+        if (feedback.length === 0) {
+            restaurantFeedbackTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No feedback sent to admin yet.</td></tr>';
+            return;
+        }
+
+        feedback.forEach(f => {
+          const feedbackDate = new Date(f.createdAt).toLocaleString();
+          const statusBadgeClass = {
+            'new': 'bg-primary',
+            'in-progress': 'bg-info',
+            'resolved': 'bg-success',
+            'closed': 'bg-secondary'
+          }[f.status] || 'bg-secondary';
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${f._id}</td>
+            <td>${f.message ? f.message.substring(0, 100) + (f.message.length > 100 ? '...' : '') : 'N/A'}</td>
+            <td><span class="badge ${statusBadgeClass}">${f.status.charAt(0).toUpperCase() + f.status.slice(1)}</span></td>
+            <td>${feedbackDate}</td>
+          `;
+          restaurantFeedbackTableBody.appendChild(row);
+        });
+      }
+
+      // --- Send Feedback to Admin ---
+      sendFeedbackToAdminForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          sendFeedbackToAdminMessage.innerHTML = '';
+          const message = document.getElementById('feedbackMessage').value.trim();
+
+          if (!message) {
+              sendFeedbackToAdminMessage.className = 'mt-3 alert alert-warning';
+              sendFeedbackToAdminMessage.innerText = 'Feedback message cannot be empty.';
+              return;
+          }
+          if (!restaurantId) {
+                sendFeedbackToAdminMessage.className = 'mt-3 alert alert-danger';
+                sendFeedbackToAdminMessage.innerText = 'Cannot send feedback: Restaurant profile not configured.';
+                return;
+          }
+
+          try {
+              const result = await makeAuthenticatedRequest(`/api/restaurant/feedback/admin`, 'POST', { message });
+              if (!result) return;
+
+              sendFeedbackToAdminMessage.className = 'mt-3 alert alert-success';
+              sendFeedbackToAdminMessage.innerText = result.message;
+              sendFeedbackToAdminForm.reset();
+              fetchRestaurantFeedbackToAdmin(); // Refresh the list
+          } catch (err) {
+              sendFeedbackToAdminMessage.className = 'mt-3 alert alert-danger';
+              sendFeedbackToAdminMessage.innerText = `Failed to send feedback: ${err.message}`;
+              console.error('Error sending feedback to admin:', err);
+          }
+      });
+
+      // --- Fetch Restaurant Profile ---
+      async function fetchRestaurantProfile() {
+          try {
+              const data = await makeAuthenticatedRequest(`/api/restaurant/profile`);
+              if (!data) return;
+
+              const restaurant = data.restaurant;
+              if (restaurant) {
+                  // If restaurant profile exists, populate form for editing
+                  document.getElementById('profileRestaurantTitle').value = restaurant.title || '';
+                  document.getElementById('profileRestaurantDescription').value = restaurant.description || '';
+                  document.getElementById('profileRestaurantAddress').value = restaurant.address || '';
+                  document.getElementById('profileRestaurantImage').value = restaurant.image || '';
+                  profileFormTitle.innerText = "Edit Restaurant Profile";
+                  saveProfileBtn.innerText = "Save Changes";
+              } else {
+                  // If no restaurant profile, clear form for creation
+                  document.getElementById('profileRestaurantTitle').value = '';
+                  document.getElementById('profileRestaurantDescription').value = '';
+                  document.getElementById('profileRestaurantAddress').value = '';
+                  document.getElementById('profileRestaurantImage').value = '';
+                  profileFormTitle.innerText = "Setup Your Restaurant Profile";
+                  saveProfileBtn.innerText = "Create Restaurant Profile";
+              }
+              restaurantProfileMessage.innerHTML = ''; // Clear any previous messages
+          } catch (err) {
+              restaurantProfileMessage.className = 'mt-3 alert alert-danger';
+              restaurantProfileMessage.innerText = `Failed to load profile: ${err.message}`;
+              console.error('Error fetching restaurant profile:', err);
+          }
+      }
+
+      // --- Save/Create Restaurant Profile ---
+      restaurantProfileForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          restaurantProfileMessage.innerHTML = '';
+
+          const profileData = {
+              title: document.getElementById('profileRestaurantTitle').value,
+              description: document.getElementById('profileRestaurantDescription').value,
+              address: document.getElementById('profileRestaurantAddress').value,
+              image: document.getElementById('profileRestaurantImage').value
+          };
+
+          try {
+              let result;
+              if (restaurantId) {
+                  // If restaurantId exists, it's an update
+                  result = await makeAuthenticatedRequest(`/api/restaurant/profile`, 'PUT', profileData);
+              } else {
+                  // If restaurantId is null, it's a creation
+                  result = await makeAuthenticatedRequest(`/api/restaurant/profile`, 'POST', profileData);
+              }
+              
+              if (!result) return;
+
+              restaurantProfileMessage.className = 'mt-3 alert alert-success';
+              restaurantProfileMessage.innerText = result.message;
+              
+              // Re-check restaurant status to update ID and UI
+              await checkRestaurantStatus();
+              // Update display name in topbar
+              restaurantNameDisplay.innerText = result.restaurant ? result.restaurant.title : userName;
+
+          } catch (err) {
+              restaurantProfileMessage.className = 'mt-3 alert alert-danger';
+              restaurantProfileMessage.innerText = `Failed to save profile: ${err.message}`;
+              console.error('Error saving restaurant profile:', err);
+          }
+      });
+
+
+      // --- Confirmation Modal Logic ---
+      confirmActionButton.addEventListener('click', () => {
+          if (currentAction) {
+              currentAction();
+              currentAction = null; // Reset action
+          }
+      });
+
+      // --- Event Listener for Edit Profile Button in Dropdown ---
+      editRestaurantProfileBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          showSection('profile-management');
+          fetchRestaurantProfile(); // Ensure profile data is loaded
+      });
+
+      // --- Logout Functionality ---
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userType');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userId');
+        alert('You have been logged out.');
+        window.location.href = '/login.html';
+      });
+
+      // --- Initial Load ---
+      await checkRestaurantStatus(); // Check if restaurant profile exists on load
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #343a40; /* Dark theme for admin */
+      color: white;
+      flex-shrink: 0;
+      border-right: 1px solid #212529;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    .sidebar h4 {
+        color: #fff;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #495057;
+        margin-bottom: 15px;
+    }
+    .sidebar .nav-link {
+      color: white;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        font-size: 1.1em;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: #495057;
+      color: #FFC107; /* Yellow highlight */
+    }
+    .topbar {
+      background-color: #f8f9fa;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e9ecef;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    .main-content-area {
+      flex: 1;
+      padding: 20px;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .card {
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .data-section {
+        display: none;
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        min-height: 500px;
+    }
+    .data-section.active {
+        display: block;
+    }
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    .table thead {
+        background-color: #f1f3f5;
+    }
+    .table th {
+        vertical-align: middle;
+    }
+    .pending-approval { /* Specific style for pending approval rows */
+        background-color: #fff3cd;
+        color: #664d03;
+    }
+    .badge {
+        font-size: 0.85em;
+        padding: 0.5em 0.7em;
+        border-radius: 0.5rem;
+    }
+    .btn-action {
+        padding: 5px 10px;
+        font-size: 0.85em;
+        margin-right: 5px;
+        border-radius: 5px;
+    }
+    /* Custom Modal styles */
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        background-color: #343a40; /* Dark header */
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom: none;
+    }
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    .modal-footer {
+        border-top: none;
+    }
+    .form-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .order-item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0.9em;
+        color: #555;
+    }
+    .order-item-list li {
+        margin-bottom: 3px;
+    }
+    /* Chart specific styling */
+    .chart-container {
+        position: relative;
+        height: 400px; /* Fixed height for charts */
+        width: 100%;
+        margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column p-3">
+    <h4 class="text-center mb-4">Admin Panel</h4>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link active" href="#" data-section="dashboard-overview"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="users-management"><i class="fas fa-users"></i> Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="restaurants-management"><i class="fas fa-utensils"></i> Restaurants</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="orders-management"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="popular-restaurants"><i class="fas fa-star"></i> Popular Restaurants</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="approvals-management"><i class="fas fa-user-check"></i> Approvals</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="categories-management"><i class="fas fa-tags"></i> Categories</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="reports-management"><i class="fas fa-chart-line"></i> Reports</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="feedback-user"><i class="fas fa-comment-dots"></i> Feedback (User)</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="feedback-customer-management"><i class="fas fa-comment-dots"></i> Feedback (Customer)</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="feedback-restaurant-management"><i class="fas fa-comment-alt"></i> Feedback (Restaurant)</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="feedback-admin-management"><i class="fas fa-bullhorn"></i> Feedback (Admin)</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main flex-grow-1 d-flex flex-column">
+    <!-- Topbar -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+      <h5 id="dashboardTitle">Admin Dashboard</h5>
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle rounded-pill" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <span id="adminNameDisplay">Loading...</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+          <li><a class="dropdown-item" href="#" id="editProfileBtn">Profile (Edit)</a></li>
+          <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Area -->
+    <div class="main-content-area flex-grow-1">
+
+      <!-- Dashboard Overview Section (Initial view) -->
+      <div id="dashboard-overview" class="data-section active">
+        <h2 class="mb-4 text-center">Dashboard Overview</h2>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card text-white bg-primary">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-users"></i> Total Users</h5>
+                <p class="card-text fs-3" id="totalUsers">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-success">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-utensils"></i> Total Restaurants</h5>
+                <p class="card-text fs-3" id="totalRestaurants">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-info">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-pizza-slice"></i> Total Food Items</h5>
+                <p class="card-text fs-3" id="totalFoodItems">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-warning">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-hourglass-start"></i> Pending Restaurant Approvals</h5>
+                <p class="card-text fs-3" id="pendingRestaurantApprovals">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-danger">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shopping-bag"></i> Total Orders</h5>
+                <p class="card-text fs-3" id="totalOrders">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Management Section -->
+      <div id="users-management" class="data-section">
+        <h2 class="mb-4 text-center">Users Management</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Approval</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="6" class="text-center">Loading users...</td></tr>
+            </tbody>
+          </table>
+          <p id="usersLoadingError" class="text-danger text-center" style="display:none;">Failed to load users.</p>
+        </div>
+      </div>
+
+      <!-- Restaurants Management Section -->
+      <div id="restaurants-management" class="data-section">
+        <h2 class="mb-4 text-center">Restaurants Management</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Owner</th>
+                <th>Description</th>
+                <th>Address</th>
+                <th>Avg Rating</th>
+                <th>Image</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody id="restaurantsTableBody">
+              <tr><td colspan="8" class="text-center">Loading restaurants...</td></tr>
+            </tbody>
+          </table>
+          <p id="restaurantsLoadingError" class="text-danger text-center" style="display:none;">Failed to load restaurants.</p>
+        </div>
+      </div>
+
+      <!-- Orders Management Section -->
+      <div id="orders-management" class="data-section">
+        <h2 class="mb-4 text-center">Orders Management</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>User Name</th>
+                <th>Restaurant Title</th>
+                <th>Items</th>
+                <th>Total Price</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th>Payment Method</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="8" class="text-center">Loading orders...</td></tr>
+            </tbody>
+          </table>
+          <p id="ordersLoadingError" class="text-danger text-center" style="display:none;">Failed to load orders.</p>
+        </div>
+      </div>
+
+      <!-- Popular Restaurants Section -->
+      <div id="popular-restaurants" class="data-section">
+        <h2 class="mb-4 text-center">Popular Restaurants Management</h2>
+        <div class="form-section mb-4">
+            <h4 class="mb-3">Select Restaurants to Promote</h4>
+            <form id="promoteRestaurantsForm">
+                <div class="mb-3">
+                    <label for="availableRestaurantsSelect" class="form-label">Available Restaurants</label>
+                    <select multiple class="form-select" id="availableRestaurantsSelect" size="10" aria-label="Available Restaurants" style="min-height: 150px;">
+                        <!-- Options populated dynamically -->
+                    </select>
+                    <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple restaurants.</small>
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill">Update Promoted List</button>
+                <div id="promoteRestaurantsMessage" class="mt-3"></div>
+            </form>
+        </div>
+
+        <h4 class="mb-3">Currently Promoted Restaurants</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="promotedRestaurantsTableBody">
+                    <tr><td colspan="4" class="text-center">No restaurants are currently promoted.</td></tr>
+                </tbody>
+            </table>
+            <p id="promotedRestaurantsLoadingError" class="text-danger text-center" style="display:none;">Failed to load promoted restaurant data.</p>
+        </div>
+      </div>
+
+      <!-- Approvals Management Section -->
+      <div id="approvals-management" class="data-section">
+        <h2 class="mb-4 text-center">Approvals Management (Restaurant Users)</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Current Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="approvalsTableBody">
+              <tr><td colspan="5" class="text-center">Loading pending approvals...</td></tr>
+            </tbody>
+          </table>
+          <p id="approvalsLoadingError" class="text-danger text-center" style="display:none;">No pending approvals.</p>
+        </div>
+      </div>
+
+      <!-- Categories Management Section -->
+      <div id="categories-management" class="data-section">
+        <h2 class="mb-4 text-center">Categories Management</h2>
+        <div class="form-section mb-4">
+            <h4>Manage Food Categories</h4>
+            <form id="categoriesForm">
+                <div class="mb-3">
+                    <label for="categoryInput" class="form-label">Add New Category</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control rounded-pill" id="categoryInput" placeholder="Enter new category name">
+                        <button type="button" class="btn btn-primary rounded-pill ms-2" id="addCategoryBtn">Add</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Existing Categories</label>
+                    <ul id="currentCategoriesList" class="list-group">
+                        <!-- Categories will be dynamically loaded here -->
+                        <li class="list-group-item">Loading categories...</li>
+                    </ul>
+                </div>
+                <button type="submit" class="btn btn-success rounded-pill" id="saveCategoriesBtn">Save All Categories</button>
+                <div id="categoriesMessage" class="mt-3"></div>
+            </form>
+        </div>
+      </div>
+
+      <!-- Reports Section (NEWLY ADDED & Populated) -->
+      <div id="reports-management" class="data-section">
+          <h2 class="mb-4 text-center">Analytics & Reports</h2>
+
+          <!-- Overall Metrics -->
+          <div class="row g-4 mb-5">
+              <div class="col-md-4">
+                  <div class="card text-white bg-primary">
+                      <div class="card-body">
+                          <h5 class="card-title"><i class="fas fa-money-bill-wave"></i> Total Revenue (Estimate)</h5>
+                          <p class="card-text fs-3" id="reportTotalRevenue">$0.00</p>
+                          <small class="text-white-50">Based on delivered orders</small>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="card text-white bg-warning">
+                      <div class="card-body">
+                          <h5 class="card-title"><i class="fas fa-truck"></i> Average Delivery Time</h5>
+                          <p class="card-text fs-3" id="reportAvgDeliveryTime">N/A</p>
+                          <small class="text-white-50">Minutes</small>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="card text-white bg-danger">
+                      <div class="card-body">
+                          <h5 class="card-title"><i class="fas fa-times-circle"></i> Cancellation Rate</h5>
+                          <p class="card-text fs-3" id="reportCancellationRate">0%</p>
+                          <small class="text-white-50">Of all orders</small>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Filters for Charts/Tables (Example: Date Range) -->
+          <div class="form-section mb-4">
+              <h4>Filter Reports</h4>
+              <div class="row g-3 align-items-end">
+                  <div class="col-md-4">
+                      <label for="reportStartDate" class="form-label">Start Date</label>
+                      <input type="date" class="form-control rounded-pill" id="reportStartDate">
+                  </div>
+                  <div class="col-md-4">
+                      <label for="reportEndDate" class="form-label">End Date</label>
+                      <input type="date" class="form-control rounded-pill" id="reportEndDate">
+                  </div>
+                  <div class="col-md-4">
+                      <button class="btn btn-primary rounded-pill w-100" id="applyReportFilterBtn"><i class="fas fa-filter"></i> Apply Filter</button>
+                  </div>
+              </div>
+              <div id="reportsFilterMessage" class="mt-3"></div>
+          </div>
+
+          <!-- Report: Order Volume Over Time -->
+          <div class="card mb-5">
+              <div class="card-body">
+                  <h4 class="card-title mb-3">Order Volume Trend</h4>
+                  <div class="chart-container">
+                      <canvas id="orderVolumeChart"></canvas>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Report: Top 5 Restaurants by Order Count -->
+          <div class="card mb-5">
+              <div class="card-body">
+                  <h4 class="card-title mb-3">Top Restaurants by Orders</h4>
+                  <div class="table-responsive">
+                      <table class="table table-striped table-hover">
+                          <thead>
+                              <tr>
+                                  <th>Rank</th>
+                                  <th>Restaurant</th>
+                                  <th>Total Orders</th>
+                                  <th>Average Rating</th>
+                              </tr>
+                          </thead>
+                          <tbody id="topRestaurantsTableBody">
+                              <tr><td colspan="4" class="text-center">Loading top restaurants...</td></tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Report: Food Category Popularity -->
+          <div class="card mb-5">
+              <div class="card-body">
+                  <h4 class="card-title mb-3">Food Category Popularity</h4>
+                  <div class="chart-container" style="height: 350px;"> <!-- Smaller height for pie chart -->
+                      <canvas id="categoryPopularityChart"></canvas>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Report: Customer Feedback Rating Distribution -->
+          <div class="card mb-5">
+              <div class="card-body">
+                  <h4 class="card-title mb-3">Customer Feedback Rating Distribution</h4>
+                  <div class="chart-container" style="height: 350px;"> <!-- Smaller height for bar chart -->
+                      <canvas id="ratingDistributionChart"></canvas>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <!-- END NEWLY ADDED REPORTS SECTION -->
+
+      <!-- User Feedback Section -->
+      <div id="feedback-user" class="data-section">
+        <h2 class="mb-4 text-center">User Feedback (from Customers & Restaurants)</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Feedback ID</th>
+                <th>Sender</th>
+                <th>Sender Type</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userFeedbackTableBody">
+              <tr><td colspan="7" class="text-center">Loading feedback...</td></tr>
+            </tbody>
+          </table>
+          <p id="userFeedbackLoadingError" class="text-danger text-center" style="display:none;">No user feedback found.</p>
+        </div>
+      </div>
+
+      <!-- Customer Feedback Section (Customer to Restaurant) -->
+      <div id="feedback-customer-management" class="data-section">
+        <h2 class="mb-4 text-center">Customer Feedback</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Feedback ID</th>
+                <th>User Name</th>
+                <th>Restaurant Title</th>
+                <th>Rating</th>
+                <th>Message</th>
+                <th>Order ID</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackCustomerTableBody">
+              <tr><td colspan="7" class="text-center">Loading customer feedback...</td></tr>
+            </tbody>
+          </table>
+          <p id="feedbackCustomerLoadingError" class="text-danger text-center" style="display:none;">Failed to load customer feedback.</p>
+        </div>
+      </div>
+
+      <!-- Restaurant Feedback Section (Restaurant to Admin) -->
+      <div id="feedback-restaurant-management" class="data-section">
+        <h2 class="mb-4 text-center">Restaurant Feedback to Admin</h2>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Feedback ID</th>
+                <th>Restaurant Title</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackRestaurantTableBody">
+              <tr><td colspan="6" class="text-center">Loading restaurant feedback...</td></tr>
+            </tbody>
+          </table>
+          <p id="feedbackRestaurantLoadingError" class="text-danger text-center" style="display:none;">Failed to load restaurant feedback.</p>
+        </div>
+      </div>
+
+      <!-- Admin Announcements/Feedback Management -->
+      <div id="feedback-admin-management" class="data-section">
+        <h2 class="mb-4 text-center">Admin Announcements/Feedback</h2>
+        <button class="btn btn-primary mb-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#sendAdminFeedbackModal">
+            <i class="fas fa-plus-circle"></i> Send New Announcement/Feedback
+        </button>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Announcement ID</th>
+                <th>Admin Name</th>
+                <th>Receiver Role</th>
+                <th>Receiver ID</th>
+                <th>Message</th>
+                <th>Type</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackAdminTableBody">
+              <tr><td colspan="7" class="text-center">Loading admin announcements...</td></tr>
+            </tbody>
+          </table>
+          <p id="feedbackAdminLoadingError" class="text-danger text-center" style="display:none;">Failed to load admin announcements.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmationMessage">
+          Are you sure you want to perform this action?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary rounded-pill" id="confirmActionButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Edit Modal -->
+  <div class="modal fade" id="profileEditModal" tabindex="-1" aria-labelledby="profileEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="profileEditModalLabel">Edit Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="profileEditForm">
+            <div class="mb-3">
+              <label for="profileName" class="form-label">Name</label>
+              <input type="text" class="form-control rounded-pill" id="profileName" required>
+            </div>
+            <div class="mb-3">
+              <label for="profileEmail" class="form-label">Email</label>
+              <input type="email" class="form-control rounded-pill" id="profileEmail" required>
+            </div>
+            <button type="submit" class="btn btn-primary rounded-pill">Save Changes</button>
+            <div id="profileEditMessage" class="mt-3"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Edit Modal -->
+  <div class="modal fade" id="categoryEditModal" tabindex="-1" aria-labelledby="categoryEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="categoryEditModalLabel">Edit Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="categoryEditForm">
+            <div class="mb-3">
+              <label for="editCategoryName" class="form-label">Category Name</label>
+              <input type="text" class="form-control rounded-pill" id="editCategoryName" required>
+            </div>
+            <input type="hidden" id="originalCategoryName"> <!-- Hidden field to store original name -->
+            <button type="submit" class="btn btn-primary rounded-pill">Save Changes</button>
+            <div id="categoryEditMessage" class="mt-3"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send Admin Feedback Modal -->
+  <div class="modal fade" id="sendAdminFeedbackModal" tabindex="-1" aria-labelledby="sendAdminFeedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="sendAdminFeedbackModalLabel">Send Announcement / Feedback</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="sendAdminFeedbackForm">
+            <div class="mb-3">
+              <label for="adminFeedbackReceiverRole" class="form-label">Send To:</label>
+              <select class="form-select rounded-pill" id="adminFeedbackReceiverRole" required>
+                <!-- UPDATED: Values match schema enum precisely -->
+                <option value="allUsers">All Users</option>
+                <option value="allRestaurants">All Restaurants</option>
+                <option value="specificUser">Specific User</option>
+                <option value="specificRestaurant">Specific Restaurant (Owner)</option> <!-- Clarified -->
+              </select>
+            </div>
+            <div class="mb-3" id="adminFeedbackReceiverIdGroup" style="display:none;">
+              <label for="adminFeedbackReceiverId" class="form-label">Receiver ID (User or Restaurant):</label> <!-- Clarified label -->
+              <input type="text" class="form-control rounded-pill" id="adminFeedbackReceiverId" placeholder="Enter User/Restaurant ID">
+              <small class="form-text text-muted">Enter the User ID (for specific user) or Restaurant ID (for restaurant owner).</small>
+            </div>
+            <div class="mb-3">
+              <label for="adminFeedbackMessageType" class="form-label">Message Type:</label>
+              <select class="form-select rounded-pill" id="adminFeedbackMessageType" required>
+                <option value="Announcement">Announcement</option>
+                <option value="Warning">Warning</option>
+                <option value="Information">Information</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="adminFeedbackMessage" class="form-label">Message:</label>
+              <textarea class="form-control rounded-pill" id="adminFeedbackMessage" rows="4" placeholder="Enter your message" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary rounded-pill w-100">Send</button>
+            <div id="sendAdminFeedbackMessage" class="mt-3"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js CDN Added -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      const userType = localStorage.getItem('userType');
+      let userName = localStorage.getItem('userName');
+      let currentUserId = localStorage.getItem('userId'); // Get user ID for profile editing
+
+      const adminNameDisplay = document.getElementById('adminNameDisplay');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const dashboardTitle = document.getElementById('dashboardTitle');
+      const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+      const dataSections = document.querySelectorAll('.data-section');
+      
+      // Dashboard Overview elements
+      const totalUsersSpan = document.getElementById('totalUsers');
+      const totalRestaurantsSpan = document.getElementById('totalRestaurants');
+      const totalFoodItemsSpan = document.getElementById('totalFoodItems');
+      const pendingRestaurantApprovalsSpan = document.getElementById('pendingRestaurantApprovals');
+      const totalOrdersSpan = document.getElementById('totalOrders');
+
+      // Table Bodies & Error Elements
+      const usersTableBody = document.getElementById('usersTableBody');
+      const usersLoadingError = document.getElementById('usersLoadingError');
+      const restaurantsTableBody = document.getElementById('restaurantsTableBody');
+      const restaurantsLoadingError = document.getElementById('restaurantsLoadingError');
+      const ordersTableBody = document.getElementById('ordersTableBody');
+      const ordersLoadingError = document.getElementById('ordersLoadingError');
+      const approvalsTableBody = document.getElementById('approvalsTableBody');
+      const approvalsLoadingError = document.getElementById('approvalsLoadingError');
+      const promotedRestaurantsTableBody = document.getElementById('promotedRestaurantsTableBody');
+      const promotedRestaurantsLoadingError = document.getElementById('promotedRestaurantsLoadingError');
+      const userFeedbackTableBody = document.getElementById('userFeedbackTableBody');
+      const userFeedbackLoadingError = document.getElementById('userFeedbackLoadingError');
+      const feedbackCustomerTableBody = document.getElementById('feedbackCustomerTableBody');
+      const feedbackCustomerLoadingError = document.getElementById('feedbackCustomerLoadingError');
+      const feedbackRestaurantTableBody = document.getElementById('feedbackRestaurantTableBody');
+      const feedbackRestaurantLoadingError = document.getElementById('feedbackRestaurantLoadingError');
+      const feedbackAdminTableBody = document.getElementById('feedbackAdminTableBody');
+      const feedbackAdminLoadingError = document.getElementById('feedbackAdminLoadingError');
+
+      // Category Management elements
+      const categoriesForm = document.getElementById('categoriesForm');
+      const categoryInput = document.getElementById('categoryInput');
+      const addCategoryBtn = document.getElementById('addCategoryBtn');
+      const currentCategoriesList = document.getElementById('currentCategoriesList');
+      const saveCategoriesBtn = document.getElementById('saveCategoriesBtn');
+      const categoriesMessage = document.getElementById('categoriesMessage');
+      let currentCategories = []; // Local array to hold categories
+      const categoryEditModal = new bootstrap.Modal(document.getElementById('categoryEditModal'));
+      const categoryEditForm = document.getElementById('categoryEditForm');
+      const editCategoryNameInput = document.getElementById('editCategoryName');
+      const originalCategoryNameInput = document.getElementById('originalCategoryName');
+      const categoryEditMessage = document.getElementById('categoryEditMessage');
+
+      // Promote Restaurants elements
+      const promoteRestaurantsForm = document.getElementById('promoteRestaurantsForm');
+      const availableRestaurantsSelect = document.getElementById('availableRestaurantsSelect');
+      const promoteRestaurantsMessage = document.getElementById('promoteRestaurantsMessage');
+
+
+      // Modals
+      const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+      const confirmActionButton = document.getElementById('confirmActionButton');
+      const confirmationMessage = document.getElementById('confirmationMessage');
+      const profileEditModal = new bootstrap.Modal(document.getElementById('profileEditModal'));
+      const profileEditForm = document.getElementById('profileEditForm');
+      const profileNameInput = document.getElementById('profileName');
+      const profileEmailInput = document.getElementById('profileEmail');
+      const profileEditMessage = document.getElementById('profileEditMessage');
+      const sendAdminFeedbackModal = new bootstrap.Modal(document.getElementById('sendAdminFeedbackModal'));
+      const sendAdminFeedbackForm = document.getElementById('sendAdminFeedbackForm');
+      const adminFeedbackReceiverRole = document.getElementById('adminFeedbackReceiverRole');
+      const adminFeedbackReceiverIdGroup = document.getElementById('adminFeedbackReceiverIdGroup');
+      const adminFeedbackReceiverId = document.getElementById('adminFeedbackReceiverId');
+      const adminFeedbackMessageType = document.getElementById('adminFeedbackMessageType');
+      const adminFeedbackMessage = document.getElementById('adminFeedbackMessage');
+      const sendAdminFeedbackMessage = document.getElementById('sendAdminFeedbackMessage');
+
+
+      // Reports Section (NEW)
+      const reportTotalRevenue = document.getElementById('reportTotalRevenue');
+      const reportAvgDeliveryTime = document.getElementById('reportAvgDeliveryTime');
+      const reportCancellationRate = document.getElementById('reportCancellationRate');
+      const reportStartDateInput = document.getElementById('reportStartDate');
+      const reportEndDateInput = document.getElementById('reportEndDate');
+      const applyReportFilterBtn = document.getElementById('applyReportFilterBtn');
+      const reportsFilterMessage = document.getElementById('reportsFilterMessage'); // New message div for reports
+      const orderVolumeChartCanvas = document.getElementById('orderVolumeChart');
+      const topRestaurantsTableBody = document.getElementById('topRestaurantsTableBody');
+      const categoryPopularityChartCanvas = document.getElementById('categoryPopularityChart');
+      const ratingDistributionChartCanvas = document.getElementById('ratingDistributionChart');
+
+      let orderVolumeChartInstance = null;
+      let categoryPopularityChartInstance = null;
+      let ratingDistributionChartInstance = null;
+
+
+      let currentAction = null; // To store the function to execute on confirmation
+
+      // --- Initial Checks and Setup ---
+      if (!token || userType !== 'admin') {
+        alert('Unauthorized access. Please log in as an administrator.');
+        window.location.href = '/login.html';
+        return;
+      }
+      if (userName) {
+          adminNameDisplay.innerText = userName;
+      } else {
+          adminNameDisplay.innerText = 'Admin';
+      }
+
+      // Set default date filter for reports to last 30 days
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      reportEndDateInput.value = today.toISOString().split('T')[0];
+      reportStartDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+
+
+      // --- Helper Functions ---
+      function displayMessage(message, type = 'info', element) {
+          if (!element) {
+              console.warn("No element provided for displayMessage. Message:", message);
+              return;
+          }
+          element.innerHTML = `<div class="alert alert-${type} rounded-pill">${message}</div>`;
+          setTimeout(() => { element.innerHTML = ''; }, 5000); // Clear message after 5 seconds
+      }
+
+      async function makeAuthenticatedRequest(url, method = 'GET', body = null) {
+          try {
+              const options = {
+                  method: method,
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                  }
+              };
+              if (body) {
+                  options.body = JSON.stringify(body);
+              }
+              const res = await fetch(url, options);
+              if (res.status === 401 || res.status === 403) {
+                  alert('Session expired or unauthorized. Please login again.');
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('userType');
+                  localStorage.removeItem('userName');
+                  localStorage.removeItem('userId');
+                  localStorage.removeItem('userEmail');
+                  window.location.href = '/login.html';
+                  return null; // Return null to indicate failure and redirect
+              }
+              if (!res.ok) {
+                  const errorData = await res.json();
+                  console.error("Server responded with error:", errorData); // Log server error
+                  throw new Error(errorData.message || res.statusText);
+              }
+              if (res.status === 204 || res.headers.get('content-length') === '0') {
+                  return {}; // Return an empty object for no content responses
+              }
+              return await res.json();
+          } catch (error) {
+              console.error(`Error in ${method} ${url}:`, error);
+              if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                  alert('Network error: Could not connect to the server. Please check your internet connection.');
+              }
+              throw error; // Re-throw to be caught by specific fetch functions
+          }
+      }
+
+      function showSection(sectionId) {
+          dataSections.forEach(section => section.classList.remove('active'));
+          document.getElementById(sectionId).classList.add('active');
+          sidebarLinks.forEach(link => link.classList.remove('active'));
+          document.querySelector(`.sidebar .nav-link[data-section="${sectionId}"]`).classList.add('active');
+          dashboardTitle.innerText = document.querySelector(`.sidebar .nav-link[data-section="${sectionId}"]`).innerText;
+      }
+
+      sidebarLinks.forEach(link => {
+          link.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const sectionId = e.currentTarget.dataset.section;
+              showSection(sectionId);
+              switch (sectionId) {
+                  case 'dashboard-overview':
+                      fetchDashboardCounts();
+                      break;
+                  case 'users-management':
+                      fetchUsers();
+                      break;
+                  case 'restaurants-management':
+                      fetchRestaurants();
+                      break;
+                  case 'orders-management':
+                      fetchOrders();
+                      break;
+                  case 'popular-restaurants':
+                      fetchAllRestaurantsForPromotion();
+                      fetchPromotedRestaurants();
+                      break;
+                  case 'approvals-management':
+                      fetchPendingApprovals();
+                      break;
+                  case 'categories-management':
+                      fetchCategories();
+                      break;
+                  case 'reports-management': // NEW: Reports section handler
+                      fetchReportsDashboardData(); // Call this to populate reports
+                      break;
+                  case 'feedback-user': // Original "User Feedback"
+                      fetchUserFeedback();
+                      break;
+                  case 'feedback-customer-management': // New "Customer Feedback"
+                      fetchFeedbackCustomer();
+                      break;
+                  case 'feedback-restaurant-management': // New "Restaurant Feedback"
+                      fetchFeedbackRestaurant();
+                      break;
+                  case 'feedback-admin-management': // New "Admin Feedback"
+                      fetchFeedbackAdmin();
+                      break;
+              }
+          });
+      });
+
+      async function fetchDashboardCounts() {
+        try {
+          const data = await makeAuthenticatedRequest('/api/admin/dashboard-counts');
+          if (!data) return; // Authentication redirect happened
+          totalUsersSpan.innerText = data.totalUsers || 0;
+          totalRestaurantsSpan.innerText = data.totalRestaurants || 0;
+          totalFoodItemsSpan.innerText = data.totalFoodItems || 0;
+          pendingRestaurantApprovalsSpan.innerText = data.pendingApprovals || 0;
+          totalOrdersSpan.innerText = data.totalOrders || 0;
+        } catch (err) {
+          console.error("Error fetching dashboard data:", err);
+          totalUsersSpan.innerText = 'N/A';
+          totalRestaurantsSpan.innerText = 'N/A';
+          totalFoodItemsSpan.innerText = 'N/A';
+          pendingRestaurantApprovalsSpan.innerText = 'N/A';
+          totalOrdersSpan.innerText = 'N/A';
+          alert('Failed to load dashboard data. Please check your internet connection or server status.');
+        }
+      }
+      async function fetchUsers() {
+        usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading users...</td></tr>';
+        usersLoadingError.style.display = 'none';
+        try {
+          const users = await makeAuthenticatedRequest('/api/admin/users');
+          if (!users) return;
+          renderUsersTable(users);
+        } catch (err) {
+          console.error("Network or parsing error fetching users:", err);
+          usersLoadingError.style.display = 'block';
+          usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load users. Check console for details.</td></tr>';
+        }
+      }
+      function renderUsersTable(users) {
+        usersTableBody.innerHTML = '';
+        if (users.length === 0) {
+            usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No users found.</td></tr>';
+            return;
+        }
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          if (user.approval === 'pending') {
+              row.classList.add('pending-approval');
+          }
+          row.innerHTML = `
+            <td>${user._id}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td><span class="badge ${user.userType === 'admin' ? 'bg-danger' : user.userType === 'restaurant' ? 'bg-warning text-dark' : 'bg-info'}">${user.userType}</span></td>
+            <td><span class="badge ${user.approval === 'pending' ? 'bg-secondary' : 'bg-success'}">${user.approval}</span></td>
+            <td>
+              ${user.userType !== 'customer' && user.approval === 'pending' ? `<button class="btn btn-sm btn-success btn-action approve-btn" data-user-id="${user._id}">Approve</button>` : ''}
+              <button class="btn btn-sm btn-danger btn-action delete-user-btn" data-user-id="${user._id}">Delete</button>
+            </td>
+          `;
+          usersTableBody.appendChild(row);
+        });
+        document.querySelectorAll('.approve-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const userId = e.currentTarget.dataset.userId;
+                confirmationMessage.innerHTML = `Are you sure you want to **approve** user ${userId.substring(0,6)}...?`;
+                currentAction = () => updateUserApproval(userId, 'accepted'); // Always 'accepted' for approve button
+                confirmationModal.show();
+            });
+        });
+        document.querySelectorAll('.delete-user-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const userId = e.currentTarget.dataset.userId;
+                confirmationMessage.innerHTML = `Are you sure you want to **delete** user ${userId.substring(0,6)}...? This action cannot be undone.`;
+                currentAction = () => deleteUser(userId);
+                confirmationModal.show();
+            });
+        });
+      }
+      async function updateUserApproval(userId, status) {
+          try {
+              const result = await makeAuthenticatedRequest(`/api/admin/users/${userId}/approve`, 'PUT', { approval: status });
+              if (!result) return;
+              alert(result.message);
+              confirmationModal.hide();
+              fetchUsers(); // Refresh the list
+              fetchDashboardCounts(); // Update dashboard counts
+          }
+           catch (err) {
+               alert(`Failed to update approval: ${err.message}`);
+               console.error('Error updating approval:', err);
+               confirmationModal.hide();
+           }
+      }
+      async function deleteUser(userId) {
+          try {
+              const result = await makeAuthenticatedRequest(`/api/admin/users/${userId}`, 'DELETE');
+              if (!result) return;
+              alert(result.message);
+              confirmationModal.hide();
+              fetchUsers(); // Refresh the list
+              fetchDashboardCounts(); // Update dashboard counts
+          } catch (err) {
+              alert(`Failed to delete user: ${err.message}`);
+              console.error('Error deleting user:', err);
+              confirmationModal.hide();
+          }
+      }
+      async function fetchRestaurants() {
+        restaurantsTableBody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading restaurants...</td></tr>';
+        restaurantsLoadingError.style.display = 'none';
+        try {
+          const restaurants = await makeAuthenticatedRequest('/api/admin/restaurants');
+          if (!restaurants) return;
+          renderRestaurantsTable(restaurants);
+        } catch (err) {
+          console.error("Error fetching restaurants:", err);
+          restaurantsLoadingError.style.display = 'block';
+          restaurantsTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load restaurants.</td></tr>';
+        }
+      }
+      function renderRestaurantsTable(restaurants) {
+        restaurantsTableBody.innerHTML = '';
+        if (restaurants.length === 0) {
+            restaurantsTableBody.innerHTML = '<tr><td colspan="8" class="text-center">No restaurants found.</td></tr>';
+            return;
+        }
+        restaurants.forEach(restaurant => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${restaurant._id}</td>
+            <td>${restaurant.title}</td>
+            <td>${restaurant.owner ? restaurant.owner.name : 'N/A'} (${restaurant.owner ? restaurant.owner.email : 'N/A'})</td>
+            <td>${restaurant.description ? restaurant.description.substring(0, 50) + '...' : 'N/A'}</td>
+            <td>${restaurant.address}</td>
+            <td>${restaurant.averageRating ? restaurant.averageRating.toFixed(1) : 'N/A'}</td>
+            <td><img src="${restaurant.image || 'https://placehold.co/50x50/E0E0E0/888888?text=No+Image'}" alt="${restaurant.title}" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;"></td>
+            <td>${new Date(restaurant.createdAt).toLocaleDateString()}</td>
+          `;
+          restaurantsTableBody.appendChild(row);
+        });
+      }
+      async function fetchOrders() {
+        ordersTableBody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading orders...</td></tr>';
+        ordersLoadingError.style.display = 'none';
+        try {
+          const orders = await makeAuthenticatedRequest('/api/admin/orders');
+          if (!orders) return;
+          renderOrdersTable(orders);
+        } catch (err) {
+          console.error("Error fetching orders for admin:", err);
+          ordersLoadingError.style.display = 'block';
+          ordersTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load orders.</td></tr>';
+        }
+      }
+      function renderOrdersTable(orders) {
+        ordersTableBody.innerHTML = '';
+        if (orders.length === 0) {
+            ordersTableBody.innerHTML = '<tr><td colspan="8" class="text-center">No orders found.</td></tr>';
+            return;
+        }
+        orders.forEach(order => {
+          const orderDate = new Date(order.orderDate).toLocaleString();
+          const itemsListHtml = order.items.map(item => `<li>${item.foodItem ? item.foodItem.title : 'Unknown Item'} (x${item.quantity}) - $${item.price.toFixed(2)}</li>`).join('');
+          const statusBadgeClass = {
+            'pending': 'bg-warning text-dark',
+            'preparing': 'bg-info',
+            'delivered': 'bg-success',
+            'cancelled': 'bg-danger'
+          }[order.status] || 'bg-secondary';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${order._id}</td>
+            <td>${order.user ? order.user.name : 'N/A'}</td>
+            <td>${order.restaurant ? order.restaurant.title : 'N/A'}</td>
+            <td><ul class="order-item-list">${itemsListHtml}</ul></td>
+            <td>$${order.totalAmount.toFixed(2)}</td>
+            <td>${orderDate}</td>
+            <td><span class="badge ${statusBadgeClass}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
+            <td>${order.paymentMethod || 'N/A'}</td> <!-- Display Payment Method -->
+          `;
+          ordersTableBody.appendChild(row);
+        });
+      }
+      async function fetchAllRestaurantsForPromotion() {
+        availableRestaurantsSelect.innerHTML = '<option value="">Select a Restaurant</option>'; // Added empty option
+        try {
+          const restaurants = await makeAuthenticatedRequest('/api/admin/restaurants');
+          if (!restaurants) return;
+          restaurants.forEach(restaurant => {
+            const option = document.createElement('option');
+            option.value = restaurant._id;
+            option.textContent = restaurant.title;
+            availableRestaurantsSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error fetching all restaurants for promotion:", err);
+          availableRestaurantsSelect.innerHTML = '<option>Failed to load restaurants.</option>';
+        }
+      }
+      async function fetchPromotedRestaurants() {
+        promotedRestaurantsTableBody.innerHTML = '<tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading promoted restaurants...</td></tr>';
+        promotedRestaurantsLoadingError.style.display = 'none';
+        try {
+          const data = await makeAuthenticatedRequest('/api/admin/promoted-restaurants');
+          if (!data) return; // Authentication error or other failure
+          const promoted = data.promotedRestaurants || []; // Ensure it's an array
+          renderPromotedRestaurantsTable(promoted);
+          const promotedIds = promoted.map(r => r._id);
+          Array.from(availableRestaurantsSelect.options).forEach(option => {
+            option.selected = promotedIds.includes(option.value);
+          });
+
+        } catch (err) {
+          console.error("Error fetching promoted restaurants:", err);
+          promotedRestaurantsLoadingError.style.display = 'block';
+          promotedRestaurantsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load promoted restaurants.</td></tr>';
+        }
+      }
+      function renderPromotedRestaurantsTable(promoted) {
+        promotedRestaurantsTableBody.innerHTML = '';
+        if (promoted.length === 0) {
+          promotedRestaurantsTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No restaurants are currently promoted.</td></tr>';
+          return;
+        }
+        promoted.forEach(restaurant => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${restaurant._id}</td>
+            <td>${restaurant.title}</td>
+            <td><img src="${restaurant.image || 'https://placehold.co/50x50/E0E0E0/888888?text=No+Image'}" alt="${restaurant.title}" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;"></td>
+            <td><button class="btn btn-sm btn-danger btn-action remove-promotion-btn" data-restaurant-id="${restaurant._id}">Remove</button></td>
+          `;
+          promotedRestaurantsTableBody.appendChild(row);
+        });
+        document.querySelectorAll('.remove-promotion-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const restaurantId = e.currentTarget.dataset.restaurantId;
+                confirmationMessage.innerHTML = `Are you sure you want to **remove** this restaurant from promotions?`;
+                currentAction = () => removePromotedRestaurant(restaurantId);
+                confirmationModal.show();
+            });
+        });
+      }
+      promoteRestaurantsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        promoteRestaurantsMessage.innerHTML = '';
+        const selectedOptions = Array.from(availableRestaurantsSelect.selectedOptions);
+        const restaurantIdsToPromote = selectedOptions.map(option => option.value);
+        try {
+          const result = await makeAuthenticatedRequest('/api/admin/promoted-restaurants', 'PUT', { restaurantIds: restaurantIdsToPromote });
+          if (!result) return;
+          promoteRestaurantsMessage.className = 'mt-3 alert alert-success';
+          promoteRestaurantsMessage.innerText = result.message;
+          fetchPromotedRestaurants(); // Refresh the list
+          fetchDashboardCounts(); // Update dashboard counts
+        } catch (err) {
+          promoteRestaurantsMessage.className = 'mt-3 alert alert-danger';
+          promoteRestaurantsMessage.innerText = `Failed to update promoted restaurants: ${err.message}`;
+          console.error('Error updating promoted restaurants:', err);
+        }
+      });
+      async function removePromotedRestaurant(restaurantId) {
+          try {
+              const currentPromotedData = await makeAuthenticatedRequest('/api/admin/promoted-restaurants');
+              const currentPromotedIds = currentPromotedData.promotedRestaurants.map(r => r._id);
+              const updatedPromotedIds = currentPromotedIds.filter(id => id !== restaurantId);
+              const result = await makeAuthenticatedRequest('/api/admin/promoted-restaurants', 'PUT', { restaurantIds: updatedPromotedIds });
+              if (!result) return;
+              alert('Restaurant removed from promoted list.');
+              confirmationModal.hide();
+              fetchPromotedRestaurants(); // Refresh the list
+              fetchDashboardCounts(); // Update dashboard counts
+          } catch (err) {
+              alert(`Failed to remove restaurant from promotions: ${err.message}`);
+              console.error('Error removing promoted restaurant:', err);
+              confirmationModal.hide();
+          }
+      }
+      async function fetchPendingApprovals() {
+        approvalsTableBody.innerHTML = '<tr><td colspan="5" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading approvals...</td></tr>';
+        approvalsLoadingError.style.display = 'none';
+        try {
+          const users = await makeAuthenticatedRequest('/api/admin/users'); // Fetch all users
+          if (!users) return;
+          const pendingRestaurantUsers = users.filter(user => user.userType === 'restaurant' && user.approval === 'pending');
+          renderApprovalsTable(pendingRestaurantUsers);
+        } catch (err) {
+          console.error("Error fetching pending approvals:", err);
+          approvalsLoadingError.style.display = 'block';
+          approvalsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load approvals.</td></tr>';
+        }
+      }
+      function renderApprovalsTable(users) {
+        approvalsTableBody.innerHTML = '';
+        if (users.length === 0) {
+            approvalsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No pending approvals.</td></tr>';
+            return;
+        }
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          row.className = 'pending-approval'; // Add specific class for styling
+          row.innerHTML = `
+            <td>${user._id}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td><span class="badge bg-warning text-dark">${user.approval}</span></td>
+            <td>
+              <button class="btn btn-sm btn-success btn-action approve-user-btn" data-user-id="${user._id}" data-status="accepted">Accept</button>
+              <button class="btn btn-sm btn-danger btn-action approve-user-btn" data-user-id="${user._id}" data-status="rejected">Reject</button>
+            </td>
+          `;
+          approvalsTableBody.appendChild(row);
+        });
+        document.querySelectorAll('.approve-user-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const userId = e.currentTarget.dataset.userId;
+                const status = e.currentTarget.dataset.status;
+                confirmationMessage.innerHTML = `Are you sure you want to **${status.toUpperCase()}** user ${userId.substring(0,6)}...?`;
+                currentAction = () => updateUserApproval(userId, status);
+                confirmationModal.show();
+            });
+        });
+      }
+      async function fetchCategories() {
+        currentCategoriesList.innerHTML = '<li><i class="fas fa-spinner fa-spin me-2"></i>Loading categories...</li>';
+        categoriesMessage.style.display = 'none';
+        try {
+          const data = await makeAuthenticatedRequest('/api/admin/categories');
+          if (!data) return;
+          currentCategories = data; // Store fetched categories locally
+          renderCategoriesList();
+        } catch (err) {
+          console.error("Error fetching categories:", err);
+          categoriesMessage.className = 'mt-3 alert alert-danger';
+          categoriesMessage.innerText = `Failed to load categories: ${err.message}`;
+          currentCategoriesList.innerHTML = '<li>Failed to load categories.</li>';
+        }
+      }
+      function renderCategoriesList() {
+        currentCategoriesList.innerHTML = '';
+        if (currentCategories.length === 0) {
+          currentCategoriesList.innerHTML = '<li class="list-group-item text-muted">No categories defined yet.</li>';
+          return;
+        }
+        currentCategories.forEach((cat, index) => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex justify-content-between align-items-center rounded-pill mb-2';
+          li.innerHTML = `
+            <span>${cat}</span>
+            <div>
+                <button type="button" class="btn btn-sm btn-info btn-action edit-category-list-btn me-2" data-category-name="${cat}" data-index="${index}"><i class="fas fa-edit"></i></button>
+                <button type="button" class="btn btn-sm btn-danger remove-category-btn" data-index="${index}"><i class="fas fa-times"></i></button>
+            </div>
+          `;
+          currentCategoriesList.appendChild(li);
+        });
+        document.querySelectorAll('.remove-category-btn').forEach(button => {
+          button.addEventListener('click', (e) => {
+            const indexToRemove = parseInt(e.currentTarget.dataset.index);
+            const categoryName = currentCategories[indexToRemove]; // Get the name to use in confirmation
+            confirmationMessage.innerHTML = `Are you sure you want to **delete** the category "${categoryName}"? This action cannot be undone.`;
+            currentAction = () => deleteCategory(categoryName);
+            confirmationModal.show();
+          });
+        });
+        document.querySelectorAll('.edit-category-list-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const categoryName = e.currentTarget.dataset.categoryName;
+                editCategoryNameInput.value = categoryName;
+                originalCategoryNameInput.value = categoryName; // Store original name for PUT request
+                categoryEditMessage.innerHTML = ''; // Clear previous messages
+                categoryEditModal.show();
+            });
+        });
+      }
+      addCategoryBtn.addEventListener('click', async () => {
+        const newCategory = categoryInput.value.trim();
+        if (newCategory) {
+            if (currentCategories.includes(newCategory)) {
+                categoriesMessage.className = 'mt-3 alert alert-warning';
+                categoriesMessage.innerText = `Category '${newCategory}' already exists.`;
+                categoriesMessage.style.display = 'block';
+                return;
+            }
+            try {
+                const result = await makeAuthenticatedRequest('/api/admin/categories', 'POST', { name: newCategory });
+                if (result) {
+                    categoriesMessage.className = 'mt-3 alert alert-success';
+                    categoriesMessage.innerText = result.message;
+                    categoryInput.value = ''; // Clear input
+                    fetchCategories(); // Re-fetch to update display
+                    fetchDashboardCounts();
+                }
+            } catch (err) {
+                categoriesMessage.className = 'mt-3 alert alert-danger';
+                categoriesMessage.innerText = `Failed to add category: ${err.message}`;
+                console.error('Error adding category:', err);
+            }
+        } else {
+            categoriesMessage.className = 'mt-3 alert alert-warning';
+            categoriesMessage.innerText = 'Category name cannot be empty.';
+            categoriesMessage.style.display = 'block';
+        }
+      });
+      categoriesForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+        categoriesMessage.innerHTML = '';
+        try {
+          categoriesMessage.className = 'mt-3 alert alert-info';
+          categoriesMessage.innerText = 'Categories managed by individual add/edit/delete actions.';
+        } catch (err) {
+          categoriesMessage.className = 'mt-3 alert alert-danger';
+          categoriesMessage.innerText = `Failed to save categories: ${err.message}`;
+          console.error('Error saving categories:', err);
+        }
+      });
+      categoryEditForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          categoryEditMessage.innerHTML = '';
+          const oldName = originalCategoryNameInput.value;
+          const newName = editCategoryNameInput.value.trim();
+          if (!newName) {
+              categoryEditMessage.className = 'mt-3 alert alert-danger';
+              categoryEditMessage.innerText = 'New category name cannot be empty.';
+              return;
+          }
+          if (newName === oldName) {
+              categoryEditMessage.className = 'mt-3 alert alert-warning';
+              categoryEditMessage.innerText = 'New name is the same as old name.';
+              return;
+          }
+          try {
+              const result = await makeAuthenticatedRequest(`/api/admin/categories/${encodeURIComponent(oldName)}`, 'PUT', { newName: newName }); 
+              if (result) {
+                  categoryEditMessage.className = 'mt-3 alert alert-success';
+                  categoryEditMessage.innerText = result.message;
+                  setTimeout(() => {
+                      categoryEditModal.hide();
+                      fetchCategories(); // Refresh table
+                  }, 1500); 
+              }
+          } catch (err) {
+              categoryEditMessage.className = 'mt-3 alert alert-danger';
+              categoryEditMessage.innerText = `Failed to update category: ${err.message}`;
+              console.error('Error updating category:', err);
+          }
+      });
+      async function deleteCategory(categoryName) {
+          try {
+              const result = await makeAuthenticatedRequest(`/api/admin/categories/${encodeURIComponent(categoryName)}`, 'DELETE'); 
+              if (result) {
+                  alert(result.message);
+                  confirmationModal.hide();
+                  fetchCategories(); // Refresh the list
+                  fetchDashboardCounts(); // Update counts
+              }
+          } catch (err) {
+              alert(`Failed to delete category: ${err.message}`);
+              console.error('Error deleting category:', err);
+              confirmationModal.hide();
+          }
+      }
+
+      // --- Reports Section Logic (Updated to fetch real data) ---
+      applyReportFilterBtn.addEventListener('click', () => {
+          fetchReportsDashboardData();
+      });
+
+      async function fetchReportsDashboardData() {
+          const startDate = reportStartDateInput.value;
+          const endDate = reportEndDateInput.value;
+
+          reportsFilterMessage.innerHTML = ''; // Clear previous messages
+
+          if (!startDate || !endDate) {
+              displayMessage('Please select both start and end dates for reports.', 'warning', reportsFilterMessage);
+              return;
+          }
+          if (new Date(startDate) > new Date(endDate)) {
+              displayMessage('Start date cannot be after end date.', 'warning', reportsFilterMessage);
+              return;
+          }
+
+          // Show loading state
+          reportsFilterMessage.innerHTML = '<div class="alert alert-info rounded-pill"><i class="fas fa-spinner fa-spin me-2"></i>Fetching report data...</div>';
+
+          // --- Real API Calls for Reports ---
+          try {
+              // Fetch overall metrics
+              // Expected response: { totalRevenue: number, averageDeliveryTime: number, cancellationRate: number }
+              const metricsData = await makeAuthenticatedRequest(`/api/admin/reports/metrics?startDate=${startDate}&endDate=${endDate}`);
+              if (metricsData) {
+                  reportTotalRevenue.innerText = `$${(metricsData.totalRevenue || 0).toFixed(2)}`;
+                  reportAvgDeliveryTime.innerText = `${metricsData.averageDeliveryTime !== undefined && metricsData.averageDeliveryTime !== null ? metricsData.averageDeliveryTime.toFixed(0) : 'N/A'} min`;
+                  reportCancellationRate.innerText = `${(metricsData.cancellationRate || 0).toFixed(1)}%`;
+              } else {
+                  // Fallback for metrics if API fails
+                  reportTotalRevenue.innerText = '$N/A';
+                  reportAvgDeliveryTime.innerText = 'N/A';
+                  reportCancellationRate.innerText = 'N/A';
+                  console.warn('Metrics data not returned or empty from API.');
+              }
+
+
+              // Fetch chart and table data in parallel
+              const [ordersTrendResponse, topRestaurantsResponse, categoryPopularityResponse, ratingDistributionResponse] = await Promise.all([
+                  // Expected response for ordersTrend: { labels: ['Date1', 'Date2', ...], datasets: [{ data: [10, 20, ...], label: 'Orders', ... }] }
+                  makeAuthenticatedRequest(`/api/admin/reports/order-trend?startDate=${startDate}&endDate=${endDate}`),
+                  // Expected response for topRestaurants: [{ rank: 1, name: 'RestA', orders: 150, rating: 4.8 }, ...]
+                  makeAuthenticatedRequest(`/api/admin/reports/top-restaurants?startDate=${startDate}&endDate=${endDate}`),
+                  // Expected response for categoryPopularity: { labels: ['Cat1', 'Cat2', ...], datasets: [{ data: [300, 150, ...], ... }] }
+                  makeAuthenticatedRequest(`/api/admin/reports/category-popularity?startDate=${startDate}&endDate=${endDate}`),
+                  // Expected response for ratingDistribution: { labels: ['1 Star', '2 Stars', ...], datasets: [{ data: [10, 25, ...], ... }] }
+                  makeAuthenticatedRequest(`/api/admin/reports/rating-distribution?startDate=${startDate}&endDate=${endDate}`)
+              ]);
+              
+              renderOrderVolumeChart(ordersTrendResponse);
+              renderTopRestaurantsTable(topRestaurantsResponse);
+              renderCategoryPopularityChart(categoryPopularityResponse);
+              renderRatingDistributionChart(ratingDistributionResponse);
+              
+              reportsFilterMessage.innerHTML = ''; // Clear loading message on success
+              displayMessage('Report data loaded successfully.', 'success', reportsFilterMessage);
+
+          } catch (error) {
+              console.error('Error fetching report data:', error);
+              reportsFilterMessage.innerHTML = '';
+              displayMessage('Failed to load report data. Please ensure your backend is running and the endpoints are correct.', 'danger', reportsFilterMessage);
+              
+              // Set default/error values for charts and tables on failure
+              renderOrderVolumeChart({ labels: [], datasets: [{ label: 'Orders', data: [], fill: false, borderColor: 'rgb(75, 192, 192)', tension: 0.1 }] });
+              renderTopRestaurantsTable([]);
+              renderCategoryPopularityChart({ labels: [], datasets: [{ data: [], backgroundColor: [], hoverOffset: 4 }] });
+              renderRatingDistributionChart({ labels: [], datasets: [{ label: 'Number of Ratings', data: [], backgroundColor: [], borderColor: [], borderWidth: 1 }] });
+          }
+      }
+
+      function renderOrderVolumeChart(data) {
+          if (orderVolumeChartInstance) {
+              orderVolumeChartInstance.destroy();
+          }
+          // The data object should have a 'labels' array and a 'datasets' array,
+          // matching the Chart.js data structure.
+          orderVolumeChartInstance = new Chart(orderVolumeChartCanvas, {
+              type: 'line',
+              data: data, // Use the fetched data directly
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      title: {
+                          display: false
+                      }
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          title: {
+                              display: true,
+                              text: 'Number of Orders'
+                          }
+                      },
+                      x: {
+                          title: {
+                              display: true,
+                              text: 'Date' // Changed from 'Month' to 'Date' for flexibility
+                          }
+                      }
+                  }
+              }
+          });
+      }
+
+      function renderTopRestaurantsTable(restaurants) {
+          topRestaurantsTableBody.innerHTML = '';
+          if (!restaurants || restaurants.length === 0) {
+              topRestaurantsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No top restaurants data.</td></tr>';
+              return;
+          }
+          restaurants.forEach(rest => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${rest.rank}</td>
+                  <td>${rest.name}</td>
+                  <td>${rest.orders}</td>
+                  <td>${rest.rating.toFixed(1)} <i class="fas fa-star text-warning"></i></td>
+              `;
+              topRestaurantsTableBody.appendChild(row);
+          });
+      }
+
+      function renderCategoryPopularityChart(data) {
+          if (categoryPopularityChartInstance) {
+              categoryPopularityChartInstance.destroy();
+          }
+          // The data object should have a 'labels' array and a 'datasets' array.
+          categoryPopularityChartInstance = new Chart(categoryPopularityChartCanvas, {
+              type: 'pie',
+              data: data, // Use the fetched data directly
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      title: {
+                          display: false
+                      }
+                  }
+              }
+          });
+      }
+
+      function renderRatingDistributionChart(data) {
+          if (ratingDistributionChartInstance) {
+              ratingDistributionChartInstance.destroy();
+          }
+          // The data object should have a 'labels' array and a 'datasets' array.
+          ratingDistributionChartInstance = new Chart(ratingDistributionChartCanvas, {
+              type: 'bar',
+              data: data, // Use the fetched data directly
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      title: {
+                          display: false
+                      }
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          title: {
+                              display: true,
+                              text: 'Number of Ratings'
+                          }
+                      },
+                      x: {
+                          title: {
+                              display: true,
+                              text: 'Star Rating'
+                          }
+                      }
+                  }
+              }
+          });
+      }
+      
+      async function fetchUserFeedback() {
+        userFeedbackTableBody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading user feedback...</td></tr>';
+        userFeedbackLoadingError.style.display = 'none';
+        try {
+          const feedback = await makeAuthenticatedRequest('/api/admin/feedback/user'); 
+          if (!feedback) return;
+          renderUserFeedbackTable(feedback);
+        } catch (err) {
+          console.error("Error fetching user feedback:", err);
+          userFeedbackLoadingError.style.display = 'block';
+          userFeedbackTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Failed to load user feedback.</td></tr>';
+        }
+      }
+      function renderUserFeedbackTable(feedback) {
+        userFeedbackTableBody.innerHTML = '';
+        if (feedback.length === 0) {
+            userFeedbackTableBody.innerHTML = '<tr><td colspan="7" class="text-center">No user feedback found.</td></tr>';
+            return;
+        }
+        feedback.forEach(f => {
+            // Assuming feedback.sender might be null or not fully populated
+            const senderName = f.sender && f.sender.name ? f.sender.name : (f.restaurant && f.restaurant.title ? f.restaurant.title : 'N/A');
+            const senderType = f.sender && f.sender.userType ? f.sender.userType : (f.restaurant ? 'restaurant' : 'N/A');
+
+            const statusBadgeClass = {
+                'new': 'bg-primary',
+                'pending': 'bg-info',
+                'resolved': 'bg-success'
+            }[f.status] || 'bg-secondary';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${f._id.substring(0, 8)}...</td>
+                <td>${senderName}</td>
+                <td>${senderType}</td>
+                <td>${f.message ? f.message.substring(0, 100) + (f.message.length > 100 ? '...' : '') : 'No message.'}</td>
+                <td>${new Date(f.createdAt).toLocaleString()}</td>
+                <td><span class="badge ${statusBadgeClass}">${f.status}</span></td>
+                <td>
+                    ${f.status !== 'resolved' ? `<button class="btn btn-sm btn-success btn-action resolve-user-feedback-btn" data-id="${f._id}">Resolve</button>` : ''}
+                </td>
+            `;
+            userFeedbackTableBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.resolve-user-feedback-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const feedbackId = e.currentTarget.dataset.id;
+                confirmationMessage.innerHTML = `Are you sure you want to **mark this user feedback as resolved**?`;
+                currentAction = () => resolveUserFeedback(feedbackId);
+                confirmationModal.show();
+            });
+        });
+      }
+
+      async function resolveUserFeedback(id) {
+        confirmationModal.hide();
+        try {
+            // This needs to hit the correct backend route for FeedbackUserToAdmin status update
+            const result = await makeAuthenticatedRequest(`/api/admin/feedback/user/${id}/status`, 'PUT', { status: 'resolved' });
+            if (result) {
+                displayMessage(result.message, 'success', userFeedbackLoadingError);
+                fetchUserFeedback();
+            }
+        } catch (error) {
+            console.error('Error resolving user feedback:', error);
+            displayMessage(`Failed to resolve feedback: ${error.message}`, 'danger', userFeedbackLoadingError);
+        }
+      }
+
+      // --- Customer Feedback (Customer to Restaurant) ---
+      async function fetchFeedbackCustomer() {
+          feedbackCustomerTableBody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading customer feedback...</td></tr>';
+          feedbackCustomerLoadingError.style.display = 'none';
+          try {
+              const feedback = await makeAuthenticatedRequest('/api/admin/feedbacks/customer');
+              if (!feedback) return;
+              renderFeedbackCustomerTable(feedback);
+          } catch (err) {
+              console.error("Error fetching customer feedback:", err);
+              feedbackCustomerLoadingError.style.display = 'block';
+              feedbackCustomerTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Failed to load customer feedback.</td></tr>';
+          }
+      }
+
+      function renderFeedbackCustomerTable(feedback) {
+          feedbackCustomerTableBody.innerHTML = '';
+          if (feedback.length === 0) {
+              feedbackCustomerTableBody.innerHTML = '<tr><td colspan="7" class="text-center">No customer feedback found.</td></tr>';
+              return;
+          }
+          feedback.forEach(f => {
+              const userName = f.user ? f.user.name : 'Unknown User';
+              const restaurantTitle = f.receiver ? f.receiver.title : 'Unknown Restaurant';
+              const orderIdDisplay = f.order ? f.order.substring(0, 8) + '...' : 'N/A';
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${f._id.substring(0, 8)}...</td>
+                  <td>${userName}</td>
+                  <td>${restaurantTitle}</td>
+                  <td>${f.rating || 'N/A'} <i class="fas fa-star text-warning"></i></td>
+                  <td>${f.message ? f.message.substring(0, 100) + (f.message.length > 100 ? '...' : '') : 'N/A'}</td>
+                  <td>${orderIdDisplay}</td>
+                  <td>${new Date(f.createdAt).toLocaleString()}</td>
+              `;
+              feedbackCustomerTableBody.appendChild(row);
+          });
+      }
+
+      // --- Restaurant Feedback (Restaurant to Admin) ---
+      async function fetchFeedbackRestaurant() {
+          feedbackRestaurantTableBody.innerHTML = '<tr><td colspan="6" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading restaurant feedback...</td></tr>';
+          feedbackRestaurantLoadingError.style.display = 'none';
+          try {
+              const feedback = await makeAuthenticatedRequest('/api/admin/feedbacks/restaurant');
+              if (!feedback) return;
+              renderFeedbackRestaurantTable(feedback);
+          } catch (err) {
+              console.error("Error fetching restaurant feedback:", err);
+              feedbackRestaurantLoadingError.style.display = 'block';
+              feedbackRestaurantTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load restaurant feedback.</td></tr>';
+          }
+      }
+
+      function renderFeedbackRestaurantTable(feedback) {
+          feedbackRestaurantTableBody.innerHTML = '';
+          if (feedback.length === 0) {
+              feedbackRestaurantTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No restaurant feedback to admin found.</td></tr>';
+              return;
+          }
+          feedback.forEach(f => {
+              const restaurantTitle = f.restaurant ? f.restaurant.title : 'Unknown Restaurant';
+              const statusBadgeClass = f.status === 'new' ? 'bg-primary' : f.status === 'pending' ? 'bg-info' : 'bg-success';
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${f._id.substring(0, 8)}...</td>
+                  <td>${restaurantTitle}</td>
+                  <td>${f.message ? f.message.substring(0, 100) + (f.message.length > 100 ? '...' : '') : 'N/A'}</td>
+                  <td><span class="badge ${statusBadgeClass}">${f.status}</span></td>
+                  <td>${new Date(f.createdAt).toLocaleString()}</td>
+                  <td>
+                      ${f.status !== 'resolved' ? `<button class="btn btn-sm btn-success btn-action resolve-restaurant-feedback-btn" data-id="${f._id}">Resolve</button>` : ''}
+                  </td>
+              `;
+              feedbackRestaurantTableBody.appendChild(row);
+          });
+          document.querySelectorAll('.resolve-restaurant-feedback-btn').forEach(button => {
+              button.addEventListener('click', (e) => {
+                  const feedbackId = e.currentTarget.dataset.id;
+                  confirmationMessage.innerHTML = `Are you sure you want to **mark this restaurant feedback as resolved**?`;
+                  currentAction = () => resolveRestaurantFeedback(feedbackId);
+                  confirmationModal.show();
+              });
+          });
+      }
+
+      async function resolveRestaurantFeedback(id) {
+          confirmationModal.hide();
+          try {
+              const result = await makeAuthenticatedRequest(`/api/admin/feedbacks/restaurant/${id}/resolve`, 'PUT');
+              if (result) {
+                  displayMessage(result.message, 'success', feedbackRestaurantLoadingError);
+                  fetchFeedbackRestaurant();
+              }
+          } catch (error) {
+              console.error('Error resolving restaurant feedback:', error);
+              displayMessage(`Failed to resolve feedback: ${error.message}`, 'danger', feedbackRestaurantLoadingError);
+          }
+      }
+
+      // --- Admin Announcements/Feedback Management ---
+      adminFeedbackReceiverRole.addEventListener('change', (e) => {
+          if (e.target.value === 'specificUser' || e.target.value === 'specificRestaurant') {
+              adminFeedbackReceiverIdGroup.style.display = 'block';
+          } else {
+              adminFeedbackReceiverIdGroup.style.display = 'none';
+              adminFeedbackReceiverId.value = '';
+          }
+      });
+
+      sendAdminFeedbackForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          sendAdminFeedbackMessage.innerHTML = '';
+
+          const receiverRole = adminFeedbackReceiverRole.value;
+          const receiver = adminFeedbackReceiverId.value.trim();
+          const type = adminFeedbackMessageType.value;
+          const message = adminFeedbackMessage.value.trim();
+
+          const payload = { receiverRole, type, message };
+          if (receiverRole === 'specificUser' || receiverRole === 'specificRestaurant') {
+              payload.receiver = receiver;
+          }
+
+          try {
+              const result = await makeAuthenticatedRequest('/api/admin/feedbacks/admin/send', 'POST', payload);
+              if (result) {
+                  displayMessage(result.message, 'success', sendAdminFeedbackMessage);
+                  sendAdminFeedbackForm.reset();
+                  adminFeedbackReceiverIdGroup.style.display = 'none'; // Hide specific receiver input
+                  fetchFeedbackAdmin(); // Refresh table
+              }
+          } catch (error) {
+              console.error('Error sending admin feedback:', error);
+              displayMessage(`Failed to send message: ${error.message}`, 'danger', sendAdminFeedbackMessage);
+          }
+      });
+
+      async function fetchFeedbackAdmin() {
+          feedbackAdminTableBody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Loading admin announcements...</td></tr>';
+          feedbackAdminLoadingError.style.display = 'none';
+          try {
+              const feedback = await makeAuthenticatedRequest('/api/admin/feedbacks/admin');
+              if (!feedback) return;
+              renderFeedbackAdminTable(feedback);
+          } catch (err) {
+              console.error("Error fetching admin feedback:", err);
+              feedbackAdminLoadingError.style.display = 'block';
+              feedbackAdminTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Failed to load admin announcements.</td></tr>';
+          }
+      }
+
+      function renderFeedbackAdminTable(feedback) {
+          feedbackAdminTableBody.innerHTML = '';
+          if (feedback.length === 0) {
+              feedbackAdminTableBody.innerHTML = '<tr><td colspan="7" class="text-center">No admin announcements/feedback sent yet.</td></tr>';
+              return;
+          }
+          feedback.forEach(f => {
+              const adminName = f.admin ? f.admin.name : 'Unknown Admin';
+              const receiverIdDisplay = f.receiver ? f.receiver.substring(0, 8) + '...' : 'N/A'; // Assuming receiver is just an ID string
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${f._id.substring(0, 8)}...</td>
+                  <td>${adminName}</td>
+                  <td>${f.receiverRole}</td>
+                  <td>${receiverIdDisplay}</td>
+                  <td>${f.message ? f.message.substring(0, 100) + (f.message.length > 100 ? '...' : '') : 'N/A'}</td>
+                  <td>${f.type}</td>
+                  <td>${new Date(f.createdAt).toLocaleString()}</td>
+              `;
+              feedbackAdminTableBody.appendChild(row);
+          });
+      }
+
+
+      // --- Profile Edit ---
+      editProfileBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          profileEditMessage.innerHTML = ''; // Clear previous messages
+          try {
+              const userProfile = await makeAuthenticatedRequest('/api/admin/profile');
+              if (userProfile) {
+                  profileNameInput.value = userProfile.user.name;
+                  profileEmailInput.value = userProfile.user.email;
+                  profileEditModal.show();
+              }
+          } catch (error) {
+              console.error('Error fetching admin profile for edit:', error);
+              displayMessage(`Failed to load profile for edit: ${error.message}`, 'danger', profileEditMessage);
+          }
+      });
+
+      profileEditForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          profileEditMessage.innerHTML = '';
+
+          const name = profileNameInput.value.trim();
+          const email = profileEmailInput.value.trim(); // Email is enabled in modal, but backend might prevent change
+
+          const payload = { name, email };
+
+          try {
+              const result = await makeAuthenticatedRequest('/api/admin/profile', 'PUT', payload);
+              if (result) {
+                  displayMessage(result.message, 'success', profileEditMessage);
+                  localStorage.setItem('userName', result.user.name); // Update local storage
+                  userName = result.user.name; // Update local variable
+                  adminNameDisplay.innerText = userName; // Update display
+                  setTimeout(() => { profileEditModal.hide(); }, 1500);
+              }
+          } catch (error) {
+              console.error('Error updating admin profile:', error);
+              displayMessage(`Failed to update profile: ${error.message}`, 'danger', profileEditMessage);
+          }
+      });
+
+
+      // --- Logout Functionality ---
+      logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          localStorage.removeItem('userType');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userEmail');
+          alert('You have been logged out.');
+          window.location.href = '/login.html';
+      });
+
+      // --- Confirmation Modal Logic ---
+      confirmActionButton.addEventListener('click', () => {
+          if (currentAction) {
+              currentAction();
+              currentAction = null;
+          }
+      });
+
+      // --- Initial Load ---
+      fetchDashboardCounts();
+      // fetchReportsDashboardData(); // Call this here if you want reports to load immediately on dashboard entry
+    });
+  </script>
+</body>
+</html>

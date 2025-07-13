@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | Food Delivery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #message {
+      text-align: center;
+      color: red;
+    }
+
+    a {
+      color: blue;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>User Login</h2>
+    <form id="loginForm">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <p id="message"></p>
+    <p style="text-align:center;">Don't have an account? <a href="register.html">Register</a></p>
+  </div>
+  
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const messageElem = document.getElementById("message");
+      messageElem.textContent = ''; // Clear previous messages
+
+      const data = {
+        email: form.email.value,
+        password: form.password.value
+      };
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        // Check if the response was not okay (e.g., 400, 500 status)
+        if (!res.ok) {
+          const errorData = await res.json(); // Attempt to parse error message from server
+          messageElem.textContent = errorData.message || 'Login failed. Please try again.';
+          console.error("API Error during login:", errorData);
+          return; // Stop execution
+        }
+
+        // If response IS ok, parse the success data
+        const result = await res.json();
+        console.log("Login successful, result:", result);
+
+        // Store the token and user info (now result.user should always be defined)
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('userType', result.user.userType);
+        localStorage.setItem('userName', result.user.name);
+        localStorage.setItem('userId', result.user.id); // NEW: Store userId
+
+        messageElem.textContent = result.message; // Display success message
+
+        // Redirect based on user type
+        if (result.user.userType === 'admin') {
+          location.href = '/admin-dashboard.html';
+        } else if (result.user.userType === 'restaurant') {
+          location.href = '/restaurant-dashboard.html';
+        } else { // customer
+          location.href = '/customer-dashboard.html';
+        }
+
+      } catch (error) {
+        console.error("Network or parsing error during login:", error);
+        messageElem.textContent = 'An unexpected error occurred. Please check your connection.';
+      }
+    });
+  </script>
+</body>
+
+</html>
+
+
